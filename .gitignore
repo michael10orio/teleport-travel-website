@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+.nx/
+
+# Angular / Nx build output
+dist/
+out-tsc/
+coverage/
+.angular/
+.tmp/
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+bin/
+obj/
+*.user
+*.suo
+*.nupkg
+.nuget/
+
+# Test and tooling output
+TestResults/
+*.trx
+*.coverage
+
+# Local PostgreSQL and database files
+*.dump
+*.backup
+*.sqlitedb
+*.sqlite
+postgres-data/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# IDE and editor files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Operating system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
