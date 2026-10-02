@@ -37,6 +37,21 @@ Define the planned frontend requirements for the Teleport Travel Discovery & Tri
 - Expenses
 - Dashboard
 
+## User Story Traceability
+
+These links connect the planned requirements to the project user stories. They do not indicate implementation status or Trello card status.
+
+| Requirement | Related user story |
+| --- | --- |
+| Browse destinations | View Destinations |
+| Search and filter destinations | Search Destinations; Filter Destinations |
+| View destination details | View Destination Details |
+| View activities for a destination | View Activities |
+| Create and review trips | Create a Trip |
+| Organize destinations and activities into a trip | Manage Itinerary |
+| Record and review travel expenses | Manage Expenses |
+| Review trip information in one place | View Dashboard |
+
 ## Current Status
 
 These are planned requirements. The frontend has not been implemented yet.
