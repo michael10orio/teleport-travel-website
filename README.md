@@ -52,7 +52,7 @@ Podman containerization and AWS-hosted PostgreSQL are planned for later project 
 
 ## Project Status
 
-**Current stage: Repository setup only.**
+**Current stage: Sprint 2 requirements planning.**
 
 Completed in this stage:
 
@@ -60,15 +60,19 @@ Completed in this stage:
 - Initial `.gitignore` added for the planned technology stack and local development files.
 - This README added with the project scope, planned stack, and initial architecture.
 - Git repository initialized with the initial setup commit.
+- Frontend requirements document created at `docs/requirements/frontend-requirements.md`.
+- Prompt Log created at `docs/prompt-log.md` with an actual AI-assisted development entry.
 
 Not yet implemented:
 
+- The Angular/Nx frontend, .NET Minimal API, PostgreSQL database, Podman configuration, and AWS resources are not implemented.
 - Angular/Nx frontend.
 - .NET Minimal API.
 - PostgreSQL database or schema.
 - Podman configuration.
 - AWS resources or credentials.
-- User stories, requirements, architecture diagrams, ERD, API, and frontend features beyond this initial repository documentation.
+- Formal use-case, ERD, and architecture diagram documents.
+- Angular/Nx frontend features and API integration.
 
 The next project step is Sprint 1 planning: requirements gathering, user stories, hypotheses, use cases, architecture v0, ERD/database planning, API planning, frontend planning, Trello backlog organization, and sprint organization.
 
