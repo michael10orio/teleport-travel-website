@@ -52,7 +52,7 @@ Podman containerization and AWS-hosted PostgreSQL are planned for later project 
 
 ## Project Status
 
-**Current stage: Sprint 2 requirements planning.**
+**Current stage: Sprint 2 frontend prototype.**
 
 Completed in this stage:
 
@@ -62,19 +62,22 @@ Completed in this stage:
 - Git repository initialized with the initial setup commit.
 - Frontend requirements document created at `docs/requirements/frontend-requirements.md`.
 - Prompt Log created at `docs/prompt-log.md` with an actual AI-assisted development entry.
+- Nx 23.2.1 initialized in the existing repository.
+- Angular 21.2.25 application created under `apps/web` with Bootstrap 5.3.8.
+- Responsive destination-discovery homepage added with sample destinations and working search/category filters.
+- Production build completed successfully; local development server returned HTTP 200.
 
 Not yet implemented:
 
-- The Angular/Nx frontend, .NET Minimal API, PostgreSQL database, Podman configuration, and AWS resources are not implemented.
-- Angular/Nx frontend.
 - .NET Minimal API.
-- PostgreSQL database or schema.
+- API integration and persistent PostgreSQL data/schema.
+- Trip creation, itinerary, expense, and dashboard workflows.
 - Podman configuration.
 - AWS resources or credentials.
-- Formal use-case, ERD, and architecture diagram documents.
-- Angular/Nx frontend features and API integration.
+- Formal use-case and ERD documents.
+- Live destination data; the homepage currently uses clearly labeled sample content.
 
-The next project step is Sprint 1 planning: requirements gathering, user stories, hypotheses, use cases, architecture v0, ERD/database planning, API planning, frontend planning, Trello backlog organization, and sprint organization.
+The next project step is to review the frontend prototype against the requirements and continue implementing planned frontend workflows incrementally. API, database, container, and cloud work remain for their later project stages.
 
 ## Development Principles
 

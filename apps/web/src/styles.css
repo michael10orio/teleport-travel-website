@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+:root {
+	color-scheme: light;
+	font-family: 'DM Sans', sans-serif;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	background: #fffefa;
+	color: #183b38;
+}
+
+html {
+	min-width: 320px;
+	scroll-behavior: smooth;
+}
+
+body {
+	min-width: 320px;
+	margin: 0;
+	background: #fffefa;
+	color: #183b38;
+	font-family: 'DM Sans', sans-serif;
+}
+
+button,
+input {
+	font: inherit;
+}

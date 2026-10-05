@@ -1,0 +1,123 @@
+<div class="page-shell">
+	<header class="site-header">
+		<div class="container-xxl header-content">
+			<a class="brand" href="/" aria-label="Teleport home">
+				<span class="brand-mark" aria-hidden="true">t</span>
+				<span>teleport</span>
+			</a>
+
+			<a class="header-link" href="#destinations">Discover</a>
+
+			<span class="prototype-label">TRAVEL DISCOVERY · POC</span>
+		</div>
+	</header>
+
+	<main>
+		<section class="intro-band" aria-labelledby="intro-title">
+			<div class="container-xxl intro-content">
+				<p class="eyebrow"><span></span> A little inspiration goes a long way</p>
+				<h1 id="intro-title">Find your next <em>somewhere.</em></h1>
+				<p class="intro-copy">
+					Start with a place that catches your eye. Your next trip begins here.
+				</p>
+
+				<form class="search-bar" role="search" (submit)="$event.preventDefault()">
+					<label class="visually-hidden" for="destination-search">
+						Search destinations
+					</label>
+					<input
+						id="destination-search"
+						class="form-control search-input"
+						type="search"
+						placeholder="Try a place or country"
+						[value]="searchTerm()"
+						(input)="updateSearch($event)"
+					/>
+					<a class="btn search-button" href="#destinations">Explore places</a>
+				</form>
+			</div>
+		</section>
+
+		<section id="destinations" class="container-xxl destinations-section" aria-labelledby="destinations-title">
+			<div class="section-heading">
+				<div>
+					<p class="eyebrow section-eyebrow">A first collection</p>
+					<h2 id="destinations-title">Places to start dreaming about</h2>
+				</div>
+				<span class="sample-label">SAMPLE DESTINATIONS</span>
+			</div>
+
+			<div class="filter-row" role="group" aria-label="Filter destinations by category">
+				@for (category of categories; track category) {
+					<button
+						class="btn filter-button"
+						[class.active]="selectedCategory() === category"
+						[attr.aria-pressed]="selectedCategory() === category"
+						type="button"
+						(click)="setCategory(category)"
+					>
+						{{ category }}
+					</button>
+				}
+				<span class="result-count" aria-live="polite">
+					{{ filteredDestinations().length }}
+					{{ filteredDestinations().length === 1 ? 'place' : 'places' }}
+				</span>
+			</div>
+
+			<div class="row g-4 destination-grid">
+				@for (destination of filteredDestinations(); track destination.name; let first = $first) {
+					<div class="col-12 col-md-6 col-xl-4">
+						<article class="destination-card">
+							<div class="destination-image-wrap">
+								<img
+									class="destination-image"
+									[src]="destination.image"
+									[alt]="destination.imageAlt"
+									  [attr.fetchpriority]="first ? 'high' : 'auto'"
+									  [attr.loading]="first ? 'eager' : 'lazy'"
+								/>
+								<span class="destination-category">{{ destination.category }}</span>
+							</div>
+							<div class="destination-details">
+								<div class="destination-title-row">
+									<h3>{{ destination.name }}</h3>
+									<span class="destination-region">{{ destination.region }}</span>
+								</div>
+								<p>{{ destination.description }}</p>
+							</div>
+						</article>
+					</div>
+				} @empty {
+					<div class="col-12">
+						<p class="empty-state" role="status">
+							No places match that search. Try another name or choose a different category.
+						</p>
+					</div>
+				}
+			</div>
+		</section>
+
+		<section class="planning-note" aria-label="Project scope note">
+			<div class="container-xxl planning-note-content">
+				<span class="planning-note-mark" aria-hidden="true">01</span>
+				<div>
+					<p class="eyebrow">The first step</p>
+					<h2>Discover first. Plan the details next.</h2>
+				</div>
+				<p class="planning-note-copy">
+					Trip planning and expense tools are planned for a later stage of this PoC.
+				</p>
+			</div>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container-xxl footer-content">
+			<span class="footer-brand">teleport</span>
+			<span>Travel discovery &amp; trip planning</span>
+		</div>
+	</footer>
+
+	<router-outlet></router-outlet>
+</div>

@@ -55,3 +55,10 @@ secrets/
 .LSOverride
 Thumbs.db
 Desktop.ini
+
+
+
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+.angular
