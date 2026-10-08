@@ -54,4 +54,6 @@ These links connect the planned requirements to the project user stories. They d
 
 ## Current Status
 
-These are planned requirements. The frontend has not been implemented yet.
+An initial frontend prototype is implemented in `apps/web`. It includes a responsive destination-discovery homepage, sample destinations, and client-side search and category filters.
+
+The prototype is not connected to an API or persistent database. Destination detail pages, activities, trip and itinerary management, expense tracking, dashboard data, and API loading/error states remain unimplemented.
