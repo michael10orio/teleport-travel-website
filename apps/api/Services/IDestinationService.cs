@@ -12,4 +12,8 @@ public interface IDestinationService
     Task<DestinationResponse?> GetByIdAsync(
         long id,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<ActivityResponse>?> GetActivitiesAsync(
+        long destinationId,
+        CancellationToken cancellationToken);
 }

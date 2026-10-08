@@ -45,16 +45,41 @@ public sealed class DestinationService(TeleportDbContext dbContext) : IDestinati
         long id,
         CancellationToken cancellationToken)
     {
-        return await dbContext.Destinations
+        var destination = await dbContext.Destinations
             .AsNoTracking()
-            .Where(destination => destination.Id == id)
-            .Select(destination => new DestinationResponse(
+            .SingleOrDefaultAsync(destination => destination.Id == id, cancellationToken);
+
+        return destination is null
+            ? null
+            : new DestinationResponse(
                 destination.Id,
                 destination.Name,
                 destination.Region,
                 destination.Category,
                 destination.Description,
-                destination.ImageUrl))
-            .SingleOrDefaultAsync(cancellationToken);
+                destination.ImageUrl);
+    }
+
+    public async Task<IReadOnlyList<ActivityResponse>?> GetActivitiesAsync(
+        long destinationId,
+        CancellationToken cancellationToken)
+    {
+        if (!await dbContext.Destinations.AnyAsync(
+                destination => destination.Id == destinationId,
+                cancellationToken))
+        {
+            return null;
+        }
+
+        return await dbContext.Activities
+            .AsNoTracking()
+            .Where(activity => activity.DestinationId == destinationId)
+            .OrderBy(activity => activity.Name)
+            .Select(activity => new ActivityResponse(
+                activity.Id,
+                activity.DestinationId,
+                activity.Name,
+                activity.Description))
+            .ToListAsync(cancellationToken);
     }
 }

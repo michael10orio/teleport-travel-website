@@ -1,6 +1,6 @@
 # Teleport Data Model and API Plan v0
 
-**Status: Model direction approved for coding.** The SQL schema and EF Core mapping have been written, but the schema has not been applied to a running PostgreSQL server. The destination GET routes are implemented in API source but are not verified against a database.
+**Status: Model direction approved for coding.** The SQL schema and EF Core mapping have been written, but the schema has not been applied to a running PostgreSQL server. Destination, activity, trip, itinerary, and expense routes are implemented in API source but have not been verified against a database.
 
 ## Scope Assumptions to Confirm
 
@@ -36,27 +36,35 @@ EF Core with the Npgsql provider was selected for this relational CRUD prototype
 
 ## Initial API Resource Plan
 
-The API is the only application layer that accesses PostgreSQL. The first two routes have implementation code; their database responses await a running PostgreSQL instance. Remaining routes are planned.
+The API is the only application layer that accesses PostgreSQL. All routes below have implementation code; database responses await a running PostgreSQL instance.
 
 | Method and route | Purpose | Status |
 | --- | --- | --- |
 | `GET /api/destinations` | Browse, search, and filter destinations. | Implemented in source; database response unverified. |
 | `GET /api/destinations/{id}` | View destination details. | Implemented in source; database response unverified. |
-| `GET /api/destinations/{id}/activities` | View activities for a destination. | Planned. |
-| `GET /api/trips` | List trips. | Planned. |
-| `POST /api/trips` | Create a trip. | Planned. |
-| `GET /api/trips/{id}` | View a trip and its itinerary. | Planned. |
-| `PUT /api/trips/{id}` | Update a trip. | Planned. |
-| `DELETE /api/trips/{id}` | Delete a trip. | Planned. |
-| `GET /api/trips/{tripId}/expenses` | List expenses for a trip. | Planned. |
-| `POST /api/trips/{tripId}/expenses` | Add an expense to a trip. | Planned. |
+| `GET /api/destinations/{id}/activities` | View activities for a destination. | Implemented in source; database response unverified. |
+| `GET /api/trips` | List trips. | Implemented in source; database response unverified. |
+| `POST /api/trips` | Create a trip. | Implemented in source; database response unverified. |
+| `GET /api/trips/{id}` | View basic trip details. | Implemented in source; database response unverified. |
+| `PUT /api/trips/{id}` | Update a trip. | Implemented in source; database response unverified. |
+| `DELETE /api/trips/{id}` | Delete a trip. | Implemented in source; database response unverified. |
+| `GET /api/trips/{tripId}/itinerary-items` | List a trip's itinerary. | Implemented in source; database response unverified. |
+| `POST /api/trips/{tripId}/itinerary-items` | Add a destination or activity to a trip. | Implemented in source; database response unverified. |
+| `PUT /api/trips/{tripId}/itinerary-items/{id}` | Change itinerary order. | Implemented in source; database response unverified. |
+| `DELETE /api/trips/{tripId}/itinerary-items/{id}` | Remove an itinerary item. | Implemented in source; database response unverified. |
+| `GET /api/trips/{tripId}/expenses` | List expenses for a trip. | Implemented in source; database response unverified. |
+| `GET /api/trips/{tripId}/expenses/{id}` | View one trip expense. | Implemented in source; database response unverified. |
+| `POST /api/trips/{tripId}/expenses` | Add an expense to a trip. | Implemented in source; database response unverified. |
+| `PUT /api/trips/{tripId}/expenses/{id}` | Update an expense. | Implemented in source; database response unverified. |
+| `DELETE /api/trips/{tripId}/expenses/{id}` | Delete an expense. | Implemented in source; database response unverified. |
 
 ## Implementation Order
 
 1. Start PostgreSQL in the planned database/container stage and apply the schema or EF Core migration.
 2. Add reviewed destination data; no data is seeded by the current schema file.
-3. Verify both destination GET endpoints against PostgreSQL through OpenAPI/HTTP requests.
-4. Add trip, itinerary, and expense operations incrementally.
-5. Verify the Angular destination view against a successful database-backed API response.
+3. Verify the implemented resource routes against PostgreSQL through OpenAPI/HTTP requests.
+4. Add reviewed destination data; no data is seeded by the current schema file.
+5. Build the Angular trip, itinerary, and expense workflows.
+6. Verify the Angular views against successful database-backed API responses.
 
 The Angular destination view now requests `GET /api/destinations` and has loading, empty, and error states. The current `/api/health` endpoint only checks that the API host is running; it does not prove database connectivity or destination data access. The local PostgreSQL server was not installed because Homebrew required a source build and unrelated dependency upgrades; the database runtime is deferred to the Podman stage.

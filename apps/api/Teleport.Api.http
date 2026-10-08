@@ -19,3 +19,90 @@ Accept: application/json
 ### Get one destination
 GET {{baseUrl}}/api/destinations/1
 Accept: application/json
+
+### List trips
+GET {{baseUrl}}/api/trips
+Accept: application/json
+
+### Get one trip
+GET {{baseUrl}}/api/trips/1
+Accept: application/json
+
+### Create a trip
+POST {{baseUrl}}/api/trips
+Content-Type: application/json
+
+{
+	"name": "Trip name",
+	"startDate": null,
+	"endDate": null
+}
+
+### Update a trip
+PUT {{baseUrl}}/api/trips/1
+Content-Type: application/json
+
+{
+	"name": "Updated trip name",
+	"startDate": null,
+	"endDate": null
+}
+
+### Delete a trip
+DELETE {{baseUrl}}/api/trips/1
+
+### List expenses for a trip
+GET {{baseUrl}}/api/trips/1/expenses
+Accept: application/json
+
+### Add an expense to a trip
+POST {{baseUrl}}/api/trips/1/expenses
+Content-Type: application/json
+
+{
+	"description": "Expense description",
+	"amount": 1.00,
+	"expenseDate": null
+}
+
+### Update a trip expense
+PUT {{baseUrl}}/api/trips/1/expenses/1
+Content-Type: application/json
+
+{
+	"description": "Updated expense description",
+	"amount": 1.00,
+	"expenseDate": null
+}
+
+### Delete a trip expense
+DELETE {{baseUrl}}/api/trips/1/expenses/1
+
+### List activities for a destination
+GET {{baseUrl}}/api/destinations/1/activities
+Accept: application/json
+
+### List a trip itinerary
+GET {{baseUrl}}/api/trips/1/itinerary-items
+Accept: application/json
+
+### Add a destination to a trip itinerary
+POST {{baseUrl}}/api/trips/1/itinerary-items
+Content-Type: application/json
+
+{
+	"destinationId": 1,
+	"activityId": null,
+	"sortOrder": 0
+}
+
+### Change itinerary item order
+PUT {{baseUrl}}/api/trips/1/itinerary-items/1
+Content-Type: application/json
+
+{
+	"sortOrder": 1
+}
+
+### Remove an itinerary item
+DELETE {{baseUrl}}/api/trips/1/itinerary-items/1

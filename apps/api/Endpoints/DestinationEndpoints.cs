@@ -40,5 +40,21 @@ public static class DestinationEndpoints
             .WithDescription("Returns one destination, or 404 when it does not exist.")
             .Produces<DestinationResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
+
+        destinations.MapGet("/{destinationId:long}/activities", async Task<Results<Ok<IReadOnlyList<ActivityResponse>>, NotFound>>(
+            long destinationId,
+            IDestinationService service,
+            CancellationToken cancellationToken) =>
+        {
+            var activities = await service.GetActivitiesAsync(destinationId, cancellationToken);
+            return activities is null
+                ? TypedResults.NotFound()
+                : TypedResults.Ok(activities);
+        })
+            .WithName("GetDestinationActivities")
+            .WithSummary("List activities for a destination")
+            .WithDescription("Returns the activities associated with a destination.")
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
     }
 }

@@ -69,6 +69,7 @@ Completed in this stage:
 - .NET 10 Minimal API project created under `apps/api`.
 - Built-in OpenAPI document and `GET /api/health` endpoint added.
 - Destination list/search and destination-by-ID GET routes added to the API source.
+- Destination activity listing, trip CRUD, itinerary management, and expense CRUD routes added to the API source.
 - CORS configured for the local Angular development origin.
 - API build, health response, OpenAPI route metadata, and local CORS preflight verified.
 - Five-table PostgreSQL schema and matching EF Core/Npgsql model drafted in `database/schema/001_initial.sql` and `apps/api/Data`.
@@ -77,7 +78,8 @@ Not yet implemented:
 
 - A running PostgreSQL server, applied schema/migrations, or verified database connection.
 - A successful database-backed destination response; the GET routes require PostgreSQL to run.
-- Activity, trip, itinerary, and expense API endpoints.
+- A running PostgreSQL server, applied schema/migrations, or verified database connection.
+- Successful database-backed API responses; all data routes currently require PostgreSQL to run.
 - Verified frontend-to-database-backed-API flow.
 - Trip creation, itinerary, expense, and dashboard workflows.
 - Podman configuration.
@@ -85,7 +87,7 @@ Not yet implemented:
 - Formal use-case and ERD documents.
 - Live destination data; the homepage currently uses clearly labeled sample content.
 
-The next project step is to run PostgreSQL during the planned Podman/database stage, apply and verify the schema, then verify the destination GET routes and frontend flow against real database data. The current health endpoint does not prove database connectivity. AWS remains a later project stage.
+The next project step is to run PostgreSQL during the planned Podman/database stage, apply and verify the schema, then exercise the CRUD routes and frontend flow against real database data. The current health endpoint does not prove database connectivity. AWS remains a later project stage.
 
 ## Development Principles
 

@@ -66,3 +66,13 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **Changes made by the student:** The student authorized continuing with implementation before the remaining screenshot sessions. No manual frontend edits by the student were reported.
 - **Verification:** `npx nx build web` succeeded. The API host and OpenAPI route remained available. A real `GET /api/destinations` returned HTTP 500 Problem Details because PostgreSQL is not running; no successful data response is claimed.
 - **Limitations:** The database runtime and reviewed destination rows are pending the planned Podman/database stage, so the browser cannot yet show destination records from PostgreSQL.
+
+## 2026-10-07 - Trip, Itinerary, Expense, and Activity API Routes
+
+- **Task:** Add the remaining basic API operations for activities, trips, itinerary items, and expenses.
+- **Prompt/authorization:** The user asked to complete project code before returning to screenshots and approved the five-table model.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Add grouped Minimal API routes backed by EF Core services, typed status-code responses, cancellation support, and basic validation.
+- **What was actually used:** Activity listing; trip list/detail/create/update/delete; itinerary list/add/reorder/remove; and expense list/detail/create/update/delete routes. `apps/api/Teleport.Api.http` includes request templates.
+- **Changes made by the student:** The user approved the model and asked to continue the code-first work. No manual API code edits by the student were reported.
+- **Verification:** `dotnet build apps/api/Teleport.Api.csproj` succeeded. No database-backed API response is claimed because PostgreSQL is not running; the routes still require runtime verification in the Podman/database stage.

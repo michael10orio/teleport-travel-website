@@ -8,3 +8,10 @@ public sealed record DestinationResponse(
     string Category,
     string Description,
     string? ImageUrl);
+
+/// <summary>Represents an activity available at a destination.</summary>
+public sealed record ActivityResponse(
+    long Id,
+    long DestinationId,
+    string Name,
+    string Description);

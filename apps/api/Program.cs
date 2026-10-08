@@ -18,6 +18,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<TeleportDbContext>(options =>
 	options.UseNpgsql(connectionString));
 builder.Services.AddScoped<IDestinationService, DestinationService>();
+builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IItineraryService, ItineraryService>();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
@@ -38,5 +41,8 @@ app.MapGet("/api/health", () => TypedResults.Ok(new { status = "ok" }))
 	.Produces(StatusCodes.Status200OK);
 
 app.MapDestinationEndpoints();
+app.MapTripEndpoints();
+app.MapExpenseEndpoints();
+app.MapItineraryEndpoints();
 
 app.Run();
