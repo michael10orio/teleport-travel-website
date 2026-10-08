@@ -18,6 +18,12 @@
 	gap: 2.5rem;
 }
 
+.header-nav {
+	display: flex;
+	align-items: center;
+	gap: 1.25rem;
+}
+
 .brand,
 .footer-brand {
 	display: inline-flex;

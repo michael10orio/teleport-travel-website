@@ -65,6 +65,7 @@ Completed in this stage:
 - Nx 23.2.1 initialized in the existing repository.
 - Angular 21.2.25 application created under `apps/web` with Bootstrap 5.3.8.
 - Responsive destination-discovery homepage with search/category filters and an environment-configured HTTP service for destination data.
+- Routed Trips page with a reactive create/edit form, date validation, and API client calls for list/create/update/delete; database responses are not verified.
 - Production build completed successfully; local development server returned HTTP 200.
 - .NET 10 Minimal API project created under `apps/api`.
 - Built-in OpenAPI document and `GET /api/health` endpoint added.
@@ -77,14 +78,12 @@ Completed in this stage:
 Not yet implemented:
 
 - A running PostgreSQL server, applied schema/migrations, or verified database connection.
-- A successful database-backed destination response; the GET routes require PostgreSQL to run.
-- A running PostgreSQL server, applied schema/migrations, or verified database connection.
 - Successful database-backed API responses; all data routes currently require PostgreSQL to run.
 - Verified frontend-to-database-backed-API flow.
-- Trip creation, itinerary, expense, and dashboard workflows.
+- Itinerary and expense UI workflows, dashboard, and database-backed trip actions.
 - Podman configuration.
 - AWS resources or credentials.
-- Formal use-case and ERD documents.
+- Formal use-case document.
 - Live destination data; the homepage currently uses clearly labeled sample content.
 
 The next project step is to run PostgreSQL during the planned Podman/database stage, apply and verify the schema, then exercise the CRUD routes and frontend flow against real database data. The current health endpoint does not prove database connectivity. AWS remains a later project stage.

@@ -76,3 +76,15 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **What was actually used:** Activity listing; trip list/detail/create/update/delete; itinerary list/add/reorder/remove; and expense list/detail/create/update/delete routes. `apps/api/Teleport.Api.http` includes request templates.
 - **Changes made by the student:** The user approved the model and asked to continue the code-first work. No manual API code edits by the student were reported.
 - **Verification:** `dotnet build apps/api/Teleport.Api.csproj` succeeded. No database-backed API response is claimed because PostgreSQL is not running; the routes still require runtime verification in the Podman/database stage.
+
+## 2026-10-07 - Trips Frontend Workflow
+
+- **Task:** Add the first trip-management page to the Angular frontend.
+- **Prompt/authorization:** The user asked to continue with project code before returning to screenshot capture and agreed to keep the application simple.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Add a routed Trips page with a small reactive form, trip list, date validation, and API service calls for create, read, update, and delete.
+- **What was actually used:** A lazily loaded `/trips` route, `TripService`, and a responsive page with create/edit/delete controls in `apps/web/src/app/trips`.
+- **Changes made by the student:** The student authorized code-first continuation. No manual frontend edits by the student were reported.
+- **Verification:** `npx nx build web` succeeded. The production build reports the initial bundle at 501.18 kB against a 500 kB warning budget and the root stylesheet at 5.53 kB against a 4 kB warning budget; both are warnings, not build failures.
+- **Limitations:** The Trips page calls the real API but cannot load or save trips until PostgreSQL is running. The database runtime remains deferred to the Podman stage.
+- **Environment note:** Installing `@angular/forms` reported 13 npm audit findings (11 high, 2 critical). They have not been individually reviewed or remediated.

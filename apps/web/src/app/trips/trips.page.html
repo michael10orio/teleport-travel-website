@@ -1,0 +1,93 @@
+<main class="container-xxl trips-page">
+  <header class="trips-heading">
+    <p class="eyebrow">Your plans, one step at a time</p>
+    <h1>Trips</h1>
+    <p>Create a simple trip, then add places and expenses as those features come online.</p>
+  </header>
+
+  <div class="row g-4 align-items-start">
+    <section class="col-12 col-lg-5" aria-labelledby="trip-form-title">
+      <form class="trip-form" [formGroup]="tripForm" (ngSubmit)="saveTrip()">
+        <h2 id="trip-form-title">{{ editingTripId() === null ? 'Plan a trip' : 'Edit trip' }}</h2>
+
+        <label class="form-label" for="trip-name">Trip name</label>
+        <input
+          id="trip-name"
+          class="form-control"
+          [class.is-invalid]="tripForm.controls.name.touched && tripForm.controls.name.invalid"
+          formControlName="name"
+          maxlength="120"
+          required
+        />
+        @if (tripForm.controls.name.touched && tripForm.controls.name.hasError('required')) {
+          <p class="invalid-feedback d-block">Enter a name for this trip.</p>
+        }
+
+        <div class="row g-3 date-fields">
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="trip-start-date">Start date</label>
+            <input id="trip-start-date" class="form-control" type="date" formControlName="startDate" />
+          </div>
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="trip-end-date">End date</label>
+            <input id="trip-end-date" class="form-control" type="date" formControlName="endDate" />
+          </div>
+        </div>
+
+        @if (tripForm.hasError('dateRange') && tripForm.touched) {
+          <p class="form-error" role="alert">End date must be on or after the start date.</p>
+        }
+        @if (operationFailed()) {
+          <p class="form-error" role="alert">The trip could not be saved. Check the API and database, then try again.</p>
+        }
+
+        <div class="form-actions">
+          <button class="btn save-trip-button" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'Saving...' : editingTripId() === null ? 'Create trip' : 'Save changes' }}
+          </button>
+          @if (editingTripId() !== null) {
+            <button class="btn cancel-button" type="button" (click)="resetForm()">Cancel</button>
+          }
+        </div>
+      </form>
+    </section>
+
+    <section class="col-12 col-lg-7" aria-labelledby="trip-list-title">
+      <div class="trip-list-heading">
+        <h2 id="trip-list-title">Your trips</h2>
+        @if (!isLoading() && !loadFailed()) {
+          <span>{{ trips().length }} {{ trips().length === 1 ? 'trip' : 'trips' }}</span>
+        }
+      </div>
+
+      @if (isLoading()) {
+        <p class="state-message" role="status">Loading trips...</p>
+      } @else if (loadFailed()) {
+        <div class="state-message" role="alert">
+          <p>Trips could not be loaded. Check that the API and PostgreSQL are available.</p>
+          <button class="btn cancel-button" type="button" (click)="loadTrips()">Retry</button>
+        </div>
+      } @else if (trips().length === 0) {
+        <p class="state-message" role="status">No trips yet. Create your first trip to begin planning.</p>
+      } @else {
+        <div class="trip-list">
+          @for (trip of trips(); track trip.id) {
+            <article class="trip-card">
+              <div>
+                <h3>{{ trip.name }}</h3>
+                <p>
+                  {{ trip.startDate || 'Dates not set' }}
+                  @if (trip.endDate) { <span> to {{ trip.endDate }}</span> }
+                </p>
+              </div>
+              <div class="trip-actions">
+                <button class="btn text-action" type="button" (click)="editTrip(trip)">Edit</button>
+                <button class="btn text-action delete-action" type="button" (click)="deleteTrip(trip)">Delete</button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</main>
