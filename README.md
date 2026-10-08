@@ -52,7 +52,7 @@ Podman containerization and AWS-hosted PostgreSQL are planned for later project 
 
 ## Project Status
 
-**Current stage: Sprint 2 frontend prototype.**
+**Current stage: Sprint 3 API foundation.**
 
 Completed in this stage:
 
@@ -66,18 +66,23 @@ Completed in this stage:
 - Angular 21.2.25 application created under `apps/web` with Bootstrap 5.3.8.
 - Responsive destination-discovery homepage added with sample destinations and working search/category filters.
 - Production build completed successfully; local development server returned HTTP 200.
+- .NET 10 Minimal API project created under `apps/api`.
+- Built-in OpenAPI document and `GET /api/health` endpoint added.
+- CORS configured for the local Angular development origin.
+- API build, health response, OpenAPI route, and local CORS preflight verified.
 
 Not yet implemented:
 
-- .NET Minimal API.
-- API integration and persistent PostgreSQL data/schema.
+- Destination, activity, trip, itinerary, and expense API endpoints.
+- PostgreSQL schema, persistence, migrations, and seed data.
+- Frontend-to-API integration.
 - Trip creation, itinerary, expense, and dashboard workflows.
 - Podman configuration.
 - AWS resources or credentials.
 - Formal use-case and ERD documents.
 - Live destination data; the homepage currently uses clearly labeled sample content.
 
-The next project step is to review the frontend prototype against the requirements and continue implementing planned frontend workflows incrementally. API, database, container, and cloud work remain for their later project stages.
+The next project step is to finalize the small ERD and API resource plan, then add PostgreSQL-backed destination and activity endpoints before connecting the frontend. Podman and AWS remain later project stages.
 
 ## Development Principles
 

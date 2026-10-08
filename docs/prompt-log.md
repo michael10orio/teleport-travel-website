@@ -22,3 +22,14 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **Changes made by the student:** The student authorized the frontend stage. No manual code edits by the student were reported for this entry.
 - **Verification:** `npx nx build web` succeeded. The editor reported no errors in the changed frontend files. The local development server returned HTTP 200 at `http://localhost:4200/`. Browser checks confirmed destination search and category filters work, all three destination images load, the Largest Contentful Paint warning is gone after prioritizing the lead image, and the document has no horizontal overflow at checked mobile and desktop widths. The build emits a non-fatal component stylesheet budget warning (5.48 kB versus the generated 4 kB warning threshold).
 - **Environment note:** npm reported 11 audit findings (9 high and 2 critical) during dependency installation; these have not been remediated or individually reviewed.
+
+## 2026-10-07 - .NET Minimal API Foundation
+
+- **Task:** Start the API stage with a minimal .NET API host, OpenAPI, and a real health response.
+- **Prompt/authorization:** The user asked to do the code before screenshots and continue with the .NET Minimal API stage.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Add an empty .NET 10 Minimal API project, built-in OpenAPI documentation, a health endpoint, and CORS limited to the local Angular development origin. Defer domain entities and PostgreSQL until the data model is planned.
+- **What was actually used:** `apps/api/Teleport.Api.csproj` targets .NET 10; the API exposes `GET /api/health`, generates `/openapi/v1.json`, and permits CORS requests from `http://localhost:4200`. `apps/api/Teleport.Api.http` contains requests for the actual health and OpenAPI endpoints.
+- **Changes made by the student:** The student authorized continuing implementation before taking the remaining screenshots. No manual API code edits by the student were reported.
+- **Verification:** `dotnet build apps/api/Teleport.Api.csproj` succeeded. A real health request returned HTTP 200 with `{"status":"ok"}`; the OpenAPI document listed `/api/health`; a CORS preflight from the Angular origin returned HTTP 204 with the expected allow-origin header.
+- **Scope note:** No destination or other domain data, database, or frontend integration has been added in this API step.
