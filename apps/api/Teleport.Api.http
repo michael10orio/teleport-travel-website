@@ -7,3 +7,15 @@ Accept: application/json
 ### Read the OpenAPI document
 GET {{baseUrl}}/openapi/v1.json
 Accept: application/json
+
+### List destinations
+GET {{baseUrl}}/api/destinations
+Accept: application/json
+
+### Search destinations
+GET {{baseUrl}}/api/destinations?search=Lisbon&category=Coast
+Accept: application/json
+
+### Get one destination
+GET {{baseUrl}}/api/destinations/1
+Accept: application/json

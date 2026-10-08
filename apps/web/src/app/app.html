@@ -44,11 +44,11 @@
 					<p class="eyebrow section-eyebrow">A first collection</p>
 					<h2 id="destinations-title">Places to start dreaming about</h2>
 				</div>
-				<span class="sample-label">SAMPLE DESTINATIONS</span>
+				<span class="sample-label">API DESTINATIONS</span>
 			</div>
 
 			<div class="filter-row" role="group" aria-label="Filter destinations by category">
-				@for (category of categories; track category) {
+				@for (category of categories(); track category) {
 					<button
 						class="btn filter-button"
 						[class.active]="selectedCategory() === category"
@@ -66,34 +66,55 @@
 			</div>
 
 			<div class="row g-4 destination-grid">
-				@for (destination of filteredDestinations(); track destination.name; let first = $first) {
-					<div class="col-12 col-md-6 col-xl-4">
-						<article class="destination-card">
-							<div class="destination-image-wrap">
-								<img
-									class="destination-image"
-									[src]="destination.image"
-									[alt]="destination.imageAlt"
-									  [attr.fetchpriority]="first ? 'high' : 'auto'"
-									  [attr.loading]="first ? 'eager' : 'lazy'"
-								/>
-								<span class="destination-category">{{ destination.category }}</span>
-							</div>
-							<div class="destination-details">
-								<div class="destination-title-row">
-									<h3>{{ destination.name }}</h3>
-									<span class="destination-region">{{ destination.region }}</span>
-								</div>
-								<p>{{ destination.description }}</p>
-							</div>
-						</article>
-					</div>
-				} @empty {
+				@if (isLoading()) {
 					<div class="col-12">
-						<p class="empty-state" role="status">
-							No places match that search. Try another name or choose a different category.
-						</p>
+						<p class="empty-state" role="status">Loading destinations...</p>
 					</div>
+				} @else if (loadFailed()) {
+					<div class="col-12">
+						<div class="empty-state" role="alert">
+							<p>Destination data could not be loaded. Check that the API and PostgreSQL are available.</p>
+							<button class="btn search-button" type="button" (click)="retryLoad()">Retry</button>
+						</div>
+					</div>
+				} @else if (destinations().length === 0) {
+					<div class="col-12">
+						<p class="empty-state" role="status">No destinations are available yet.</p>
+					</div>
+				} @else {
+					@for (destination of filteredDestinations(); track destination.id; let first = $first) {
+						<div class="col-12 col-md-6 col-xl-4">
+							<article class="destination-card">
+								<div class="destination-image-wrap">
+									@if (destination.imageUrl) {
+										<img
+											class="destination-image"
+											[src]="destination.imageUrl"
+											[alt]="destination.name + ', ' + destination.region"
+											[attr.fetchpriority]="first ? 'high' : 'auto'"
+											[attr.loading]="first ? 'eager' : 'lazy'"
+										/>
+									} @else {
+										<div class="destination-image image-placeholder" aria-hidden="true"></div>
+									}
+									<span class="destination-category">{{ destination.category }}</span>
+								</div>
+								<div class="destination-details">
+									<div class="destination-title-row">
+										<h3>{{ destination.name }}</h3>
+										<span class="destination-region">{{ destination.region }}</span>
+									</div>
+									<p>{{ destination.description }}</p>
+								</div>
+							</article>
+						</div>
+					} @empty {
+						<div class="col-12">
+							<p class="empty-state" role="status">
+								No places match that search. Try another name or choose a different category.
+							</p>
+						</div>
+					}
 				}
 			</div>
 		</section>

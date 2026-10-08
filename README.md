@@ -52,7 +52,7 @@ Podman containerization and AWS-hosted PostgreSQL are planned for later project 
 
 ## Project Status
 
-**Current stage: Sprint 3 API foundation.**
+**Current stage: Sprint 3 API and data-model foundation.**
 
 Completed in this stage:
 
@@ -64,25 +64,28 @@ Completed in this stage:
 - Prompt Log created at `docs/prompt-log.md` with an actual AI-assisted development entry.
 - Nx 23.2.1 initialized in the existing repository.
 - Angular 21.2.25 application created under `apps/web` with Bootstrap 5.3.8.
-- Responsive destination-discovery homepage added with sample destinations and working search/category filters.
+- Responsive destination-discovery homepage with search/category filters and an environment-configured HTTP service for destination data.
 - Production build completed successfully; local development server returned HTTP 200.
 - .NET 10 Minimal API project created under `apps/api`.
 - Built-in OpenAPI document and `GET /api/health` endpoint added.
+- Destination list/search and destination-by-ID GET routes added to the API source.
 - CORS configured for the local Angular development origin.
-- API build, health response, OpenAPI route, and local CORS preflight verified.
+- API build, health response, OpenAPI route metadata, and local CORS preflight verified.
+- Five-table PostgreSQL schema and matching EF Core/Npgsql model drafted in `database/schema/001_initial.sql` and `apps/api/Data`.
 
 Not yet implemented:
 
-- Destination, activity, trip, itinerary, and expense API endpoints.
-- PostgreSQL schema, persistence, migrations, and seed data.
-- Frontend-to-API integration.
+- A running PostgreSQL server, applied schema/migrations, or verified database connection.
+- A successful database-backed destination response; the GET routes require PostgreSQL to run.
+- Activity, trip, itinerary, and expense API endpoints.
+- Verified frontend-to-database-backed-API flow.
 - Trip creation, itinerary, expense, and dashboard workflows.
 - Podman configuration.
 - AWS resources or credentials.
 - Formal use-case and ERD documents.
 - Live destination data; the homepage currently uses clearly labeled sample content.
 
-The next project step is to finalize the small ERD and API resource plan, then add PostgreSQL-backed destination and activity endpoints before connecting the frontend. Podman and AWS remain later project stages.
+The next project step is to run PostgreSQL during the planned Podman/database stage, apply and verify the schema, then verify the destination GET routes and frontend flow against real database data. The current health endpoint does not prove database connectivity. AWS remains a later project stage.
 
 ## Development Principles
 

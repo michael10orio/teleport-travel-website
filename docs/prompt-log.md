@@ -33,3 +33,36 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **Changes made by the student:** The student authorized continuing implementation before taking the remaining screenshots. No manual API code edits by the student were reported.
 - **Verification:** `dotnet build apps/api/Teleport.Api.csproj` succeeded. A real health request returned HTTP 200 with `{"status":"ok"}`; the OpenAPI document listed `/api/health`; a CORS preflight from the Angular origin returned HTTP 204 with the expected allow-origin header.
 - **Scope note:** No destination or other domain data, database, or frontend integration has been added in this API step.
+
+## 2026-10-07 - PostgreSQL Data Model and EF Core Mapping
+
+- **Task:** Define the minimum relational model for destinations, activities, trips, itinerary items, and expenses, then map it in the .NET API.
+- **Prompt/authorization:** The user approved the five-table data/API model and chose EF Core with Npgsql. The user confirmed the initial model should omit accounts and authentication.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Keep a five-table model based on the stated features, use EF Core/Npgsql for the initial relational CRUD prototype, and defer PostgreSQL runtime setup until the planned Podman stage.
+- **What was actually used:** `database/schema/001_initial.sql`, entity classes and `TeleportDbContext` under `apps/api/Data`, and `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3.
+- **Changes made by the student:** The student approved the model direction, selected EF Core/Npgsql, and chose to defer local PostgreSQL installation until the Podman stage.
+- **Verification:** `dotnet build apps/api/Teleport.Api.csproj` succeeded after adding the EF Core model. The SQL schema has not been executed, and database-backed requests have not been tested because no local PostgreSQL server is running.
+- **Scope note:** No seed data or database credentials were added. Expense currency remains unspecified; the schema stores a positive numeric amount without currency conversion.
+
+## 2026-10-07 - Destination Read API
+
+- **Task:** Add read-only API routes for browsing/searching destinations and viewing one destination.
+- **Prompt/authorization:** The user asked to continue implementing project code before resuming screenshot work and approved EF Core with Npgsql.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Add a service-backed `GET /api/destinations` with optional search/category filters and `GET /api/destinations/{id}`, using typed results, cancellation tokens, and OpenAPI metadata.
+- **What was actually used:** The two GET routes, `IDestinationService`/`DestinationService`, and a `DestinationResponse` DTO were added under `apps/api`.
+- **Changes made by the student:** The student approved the EF Core/Npgsql choice and confirmed that accounts are out of scope for the initial model. No manual API code edits were reported.
+- **Verification:** `dotnet build apps/api/Teleport.Api.csproj` succeeded. OpenAPI lists both destination route patterns; `/api/health` returns HTTP 200 and Angular-origin CORS preflight returns HTTP 204.
+- **Limitations:** No PostgreSQL server is running locally, so destination database queries and response bodies have not been verified. No sample rows or fake request results were created.
+
+## 2026-10-07 - Angular Destination API Client
+
+- **Task:** Replace the homepage's in-memory destination collection with an Angular HTTP request to the destination API.
+- **Prompt/authorization:** The user asked to complete implementation before returning to screenshot work.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Add an Angular destination service, environment-based API URLs, and honest loading, empty, and error states; do not fall back to local sample data when the API fails.
+- **What was actually used:** `provideHttpClient`, `DestinationService`, development/production API URL configuration, and destination loading/empty/error UI states in `apps/web`.
+- **Changes made by the student:** The student authorized continuing with implementation before the remaining screenshot sessions. No manual frontend edits by the student were reported.
+- **Verification:** `npx nx build web` succeeded. The API host and OpenAPI route remained available. A real `GET /api/destinations` returned HTTP 500 Problem Details because PostgreSQL is not running; no successful data response is claimed.
+- **Limitations:** The database runtime and reviewed destination rows are pending the planned Podman/database stage, so the browser cannot yet show destination records from PostgreSQL.
