@@ -2,7 +2,7 @@
   <header class="trips-heading">
     <p class="eyebrow">Your plans, one step at a time</p>
     <h1>Trips</h1>
-    <p>Create a simple trip, then add places and expenses as those features come online.</p>
+    <p>Create a trip, organize its itinerary, and keep your expenses together.</p>
   </header>
 
   <div class="row g-4 align-items-start">
@@ -81,6 +81,7 @@
                 </p>
               </div>
               <div class="trip-actions">
+                <a class="btn text-action" [routerLink]="['/trips', trip.id]">Open</a>
                 <button class="btn text-action" type="button" (click)="editTrip(trip)">Edit</button>
                 <button class="btn text-action delete-action" type="button" (click)="deleteTrip(trip)">Delete</button>
               </div>

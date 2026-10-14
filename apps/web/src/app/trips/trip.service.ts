@@ -26,6 +26,10 @@ export class TripService {
     return this.http.get<Trip[]>(this.tripsUrl);
   }
 
+  getTrip(id: number): Observable<Trip> {
+    return this.http.get<Trip>(`${this.tripsUrl}/${id}`);
+  }
+
   createTrip(request: TripInput): Observable<Trip> {
     return this.http.post<Trip>(this.tripsUrl, request);
   }

@@ -1,0 +1,8 @@
+destination,region,category,record_type,name,description,source_url
+Lisbon,Lisboa,City,destination,Lisbon,"Portuguese city with heritage sites including Castelo de São Jorge, Jerónimos Monastery, and Belém Tower.",https://www.visitlisboa.com/en/places/castelo-de-sao-jorge
+Lisbon,Lisboa,City,activity,Castelo de São Jorge,"Visit the castle and explore its historic grounds.",https://www.visitlisboa.com/en/places/castelo-de-sao-jorge
+Lisbon,Lisboa,City,activity,Jerónimos Monastery,"Visit the monastery and explore its heritage architecture.",https://www.visitlisboa.com/en/places/jeronimos-monastery
+Lisbon,Lisboa,City,activity,Belém Tower,"Visit the historic riverside tower.",https://www.visitlisboa.com/en/places/torre-de-belem
+Porto,Porto,City,destination,Porto,"Portuguese city with heritage attractions including its Historic Centre and Clérigos Tower.",https://visitporto.travel/en-GB/attraction/heritage
+Porto,Porto,City,activity,Historic Centre of Porto,"Explore the heritage area of Porto's historic centre.",https://visitporto.travel/en-GB/attraction/heritage
+Porto,Porto,City,activity,Clérigos Tower,"Visit the tower and its historic complex.",https://visitporto.travel/en-GB/poi/5cd04b4bf979e00001939091

@@ -5,6 +5,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Trip, TripInput, TripService } from './trip.service';
 
 const tripDateRangeValidator: ValidatorFn = (control) => {
@@ -18,7 +19,7 @@ const tripDateRangeValidator: ValidatorFn = (control) => {
 
 @Component({
   selector: 'app-trips-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './trips.page.html',
   styleUrl: './trips.page.css',
 })

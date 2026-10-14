@@ -7,5 +7,10 @@ export const appRoutes: Route[] = [
 		path: 'trips',
 		loadComponent: () => import('./trips/trips.page').then((module) => module.TripsPage),
 	},
+	{
+		path: 'trips/:id',
+		loadComponent: () =>
+			import('./trips/trip-detail.page').then((module) => module.TripDetailPage),
+	},
 	{ path: '**', redirectTo: '' },
 ];

@@ -1,15 +1,68 @@
-# Teleport Data Model and API Plan v0
+# Teleport Data Model, API, and Data Flow
 
-**Status: Model direction approved for coding.** The SQL schema and EF Core mapping have been written, but the schema has not been applied to a running PostgreSQL server. Destination, activity, trip, itinerary, and expense routes are implemented in API source but have not been verified against a database.
+**Project type:** Proof of Concept
+**Status:** The API, relational schema, Angular trip workflows, and local data flows are implemented and verified. PostgreSQL 18.1 is reachable locally, with the five-table schema and reviewed demo data. The web/API/PostgreSQL Compose stack also built and ran successfully with Docker Desktop. Podman-specific runtime use and AWS hosting have not been verified.
 
-## Scope Assumptions to Confirm
+## Architecture
 
-- **Confirmed:** The first database prototype has no sign-in or account ownership because registration and authentication are not in the current core user stories.
-- Trip start and end dates are optional; when both exist, the end date cannot precede the start date.
-- Expense currency is not yet specified. This model stores a positive numeric amount only; it does not convert currencies.
-- Destination and activity records will be real, reviewed project data before they are used as evidence. No seed data is defined here.
+```mermaid
+flowchart LR
+    U[Traveler] --> W[Angular / Nx frontend]
+    W -->|HTTP / JSON| A[.NET 10 Minimal API]
+    A -->|EF Core / Npgsql| P[(PostgreSQL)]
+    P -. planned managed hosting .-> R[AWS RDS for PostgreSQL]
+```
 
-## Proposed Relational Model
+The browser communicates only with the API. During local development, the API uses PostgreSQL on the developer machine. The selected project direction is Podman-compatible local containerization and AWS-hosted PostgreSQL later. Cloud resources are not part of local verification.
+
+## Primary Data Flows
+
+### Destination discovery
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Web as Angular
+    participant API as .NET API
+    participant DB as PostgreSQL
+    User->>Web: Enter search/filter
+    Web->>API: GET /api/destinations?search=...&category=...
+    API->>DB: Query destinations
+    DB-->>API: Matching rows
+    API-->>Web: 200 JSON array
+    Web-->>User: Destination cards, empty state, or error
+```
+
+### Trip, itinerary, and expense planning
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Web as Angular
+    participant API as .NET API
+    participant DB as PostgreSQL
+    User->>Web: Submit trip / itinerary / expense form
+    Web->>API: POST or PUT /api/trips...
+    API->>API: Validate required fields and domain rules
+    API->>DB: Persist valid request
+    DB-->>API: Saved record
+    API-->>Web: 201 Created or 200 OK (or 400/404)
+    Web-->>User: Updated page or actionable error
+```
+
+## Data Collection
+
+| Entity | Fields | Required / validation |
+| --- | --- | --- |
+| Destination | Name, region, category, description, optional image URL | Curated project data; name and region are nonblank. |
+| Activity | Destination, name, description | Curated project data; destination and name are required. |
+| Trip | Name, optional start date, optional end date | Name required; if both dates exist, end date must not precede start date. |
+| Itinerary item | Trip, exactly one of destination or activity, sort order | Order must be non-negative. A trip and selected destination/activity must exist. |
+| Expense | Trip, description, positive amount, optional date | Description required; amount greater than zero; omitted date defaults to current date. |
+
+Account ownership and sign-in are excluded from this initial prototype. The web UI currently displays amounts as USD; multi-currency conversion is not supported.
+
+## Relational Model
 
 ```mermaid
 erDiagram
@@ -20,51 +73,56 @@ erDiagram
     TRIPS ||--o{ EXPENSES : tracks
 ```
 
-| Table | Proposed fields | Purpose |
+| Table | Key fields | Constraints / relationships |
 | --- | --- | --- |
-| `destinations` | `id` PK, `name`, `region`, `category`, `description`, `image_url` | Browse, search, filter, and display destination details. |
-| `activities` | `id` PK, `destination_id` FK, `name`, `description` | Store activities associated with a destination. |
-| `trips` | `id` PK, `name`, `start_date`, `end_date` | Create and review a basic trip. Dates and validation rules need review. |
-| `itinerary_items` | `id` PK, `trip_id` FK, nullable `destination_id` FK, nullable `activity_id` FK, `sort_order` | Organize destinations or activities within a trip. A check constraint should require exactly one of destination/activity per item. |
-| `expenses` | `id` PK, `trip_id` FK, `description`, `amount` | Record basic expenses for a trip. Amount must be positive. Currency is undecided. |
+| `destinations` | `id` PK, `name`, `region`, `category`, `description`, `image_url` | Unique name/region; name and region nonblank. |
+| `activities` | `id` PK, `destination_id` FK, `name`, `description` | Destination deletion cascades; unique destination/name. |
+| `trips` | `id` PK, `name`, `start_date`, `end_date`, `created_at` | Name nonblank; date range ordered. |
+| `itinerary_items` | `id` PK, `trip_id` FK, nullable `destination_id` FK, nullable `activity_id` FK, `sort_order` | Exactly one of destination/activity; non-negative order; trip deletion cascades. |
+| `expenses` | `id` PK, `trip_id` FK, `description`, `amount`, `expense_date` | Positive amount; nonblank description; trip deletion cascades. |
 
-This draft has five related tables. It intentionally does not add users, categories, or other entities without a supporting requirement.
+The SQL definition is in `database/schema/001_initial.sql`; the EF Core mapping is in `apps/api/Data/TeleportDbContext.cs`. EF Core/Npgsql is the selected learning-oriented data-access approach; no performance comparison has been run.
 
-## Data-Access Choice
+## API Contract and Implementation
 
-EF Core with the Npgsql provider was selected for this relational CRUD prototype. EF Core maps the five related entities and can manage schema migrations; direct Npgsql SQL would keep each query explicit but require manual query and row mapping. No performance comparison has been run, so this is a provisional learning-oriented choice rather than a measured result.
+All listed resource endpoints are implemented in `apps/api/Endpoints`. API responses that access data require PostgreSQL. Invalid business input returns an ASP.NET validation problem response.
 
-## Initial API Resource Plan
+| Method and route | Purpose / input | Success | Validation / other responses |
+| --- | --- | --- | --- |
+| `GET /api/health` | Host liveness | `200` | Does not check database connectivity. |
+| `GET /api/destinations?search=&category=` | Browse, search, filter | `200` array | Empty array when no matches. |
+| `GET /api/destinations/{id}` | Destination detail | `200` | `404` if absent. |
+| `GET /api/destinations/{destinationId}/activities` | List activities | `200` array | `404` if destination absent. |
+| `GET /api/trips` | List trips | `200` array | — |
+| `GET /api/trips/{id}` | Trip detail | `200` | `404` if absent. |
+| `POST /api/trips` | `{ name, startDate?, endDate? }` | `201` | `400` for blank name or invalid date order. |
+| `PUT /api/trips/{id}` | Replace trip name/date range | `200` | `400` invalid input; `404` if absent. |
+| `DELETE /api/trips/{id}` | Delete trip and dependent itinerary/expense rows | `204` | `404` if absent. |
+| `GET /api/trips/{tripId}/itinerary-items` | List ordered itinerary | `200` array | `404` if trip absent. |
+| `POST /api/trips/{tripId}/itinerary-items` | `{ destinationId?, activityId?, sortOrder }` | `201` | Exactly one subject and non-negative order; `404` if referenced trip/destination/activity is absent. |
+| `PUT /api/trips/{tripId}/itinerary-items/{id}` | `{ sortOrder }` | `200` | Non-negative order; `404` if item absent. |
+| `DELETE /api/trips/{tripId}/itinerary-items/{id}` | Remove itinerary item | `204` | `404` if absent. |
+| `GET /api/trips/{tripId}/expenses` | List trip expenses | `200` array | `404` if trip absent. |
+| `GET /api/trips/{tripId}/expenses/{id}` | Expense detail | `200` | `404` if absent. |
+| `POST /api/trips/{tripId}/expenses` | `{ description, amount, expenseDate? }` | `201` | Description nonblank and amount positive; `404` if trip absent. |
+| `PUT /api/trips/{tripId}/expenses/{id}` | Replace description, amount, date | `200` | Same validation; `404` if expense absent. |
+| `DELETE /api/trips/{tripId}/expenses/{id}` | Delete expense | `204` | `404` if absent. |
 
-The API is the only application layer that accesses PostgreSQL. All routes below have implementation code; database responses await a running PostgreSQL instance.
+The OpenAPI document is available at `/openapi/v1.json` when the API runs in Development. The request examples are in `apps/api/Teleport.Api.http`.
 
-| Method and route | Purpose | Status |
-| --- | --- | --- |
-| `GET /api/destinations` | Browse, search, and filter destinations. | Implemented in source; database response unverified. |
-| `GET /api/destinations/{id}` | View destination details. | Implemented in source; database response unverified. |
-| `GET /api/destinations/{id}/activities` | View activities for a destination. | Implemented in source; database response unverified. |
-| `GET /api/trips` | List trips. | Implemented in source; database response unverified. |
-| `POST /api/trips` | Create a trip. | Implemented in source; database response unverified. |
-| `GET /api/trips/{id}` | View basic trip details. | Implemented in source; database response unverified. |
-| `PUT /api/trips/{id}` | Update a trip. | Implemented in source; database response unverified. |
-| `DELETE /api/trips/{id}` | Delete a trip. | Implemented in source; database response unverified. |
-| `GET /api/trips/{tripId}/itinerary-items` | List a trip's itinerary. | Implemented in source; database response unverified. |
-| `POST /api/trips/{tripId}/itinerary-items` | Add a destination or activity to a trip. | Implemented in source; database response unverified. |
-| `PUT /api/trips/{tripId}/itinerary-items/{id}` | Change itinerary order. | Implemented in source; database response unverified. |
-| `DELETE /api/trips/{tripId}/itinerary-items/{id}` | Remove an itinerary item. | Implemented in source; database response unverified. |
-| `GET /api/trips/{tripId}/expenses` | List expenses for a trip. | Implemented in source; database response unverified. |
-| `GET /api/trips/{tripId}/expenses/{id}` | View one trip expense. | Implemented in source; database response unverified. |
-| `POST /api/trips/{tripId}/expenses` | Add an expense to a trip. | Implemented in source; database response unverified. |
-| `PUT /api/trips/{tripId}/expenses/{id}` | Update an expense. | Implemented in source; database response unverified. |
-| `DELETE /api/trips/{tripId}/expenses/{id}` | Delete an expense. | Implemented in source; database response unverified. |
+## Data Preparation and Verification
 
-## Implementation Order
+Destination records are curated project data, not production or live travel information. Source links, raw research notes, normalized CSVs, and the idempotent PostgreSQL seed script are maintained under `data/` and `database/seed/`.
 
-1. Start PostgreSQL in the planned database/container stage and apply the schema or EF Core migration.
-2. Add reviewed destination data; no data is seeded by the current schema file.
-3. Verify the implemented resource routes against PostgreSQL through OpenAPI/HTTP requests.
-4. Add reviewed destination data; no data is seeded by the current schema file.
-5. Build the Angular trip, itinerary, and expense workflows.
-6. Verify the Angular views against successful database-backed API responses.
+The local PostgreSQL server was observed as version 18.1, with all five expected public tables. The idempotent demo seed added two destinations and five activities. Counts after API smoke and browser tests: 2 destinations, 5 activities, 1 pre-existing trip, 0 itinerary items, and 0 expenses. Tests created and removed only uniquely named trips and their associated child records; the pre-existing trip was left unchanged.
 
-The Angular destination view now requests `GET /api/destinations` and has loading, empty, and error states. The current `/api/health` endpoint only checks that the API host is running; it does not prove database connectivity or destination data access. The local PostgreSQL server was not installed because Homebrew required a source build and unrelated dependency upgrades; the database runtime is deferred to the Podman stage.
+`scripts/smoke-test-api.sh` verified database-backed destination, search, and activity reads; invalid-input handling; trip create/read/delete; itinerary add/list/reorder/delete; and expense create/list/update/delete. Browser verification exercised trip creation, itinerary add/reorder/remove, and expense add/edit/delete. The development health endpoint is host liveness, not a database readiness check.
+
+The same smoke test passed against the Compose PostgreSQL and API containers. Nginx served the Angular page and proxied `/api` requests successfully; the homepage displayed the two seeded destinations. The container database remains separate from the local `teleport_dev` database.
+
+## Cloud and Evidence Status
+
+- **Selected direction:** Existing project brief—Podman-compatible local containers, then AWS-hosted PostgreSQL. The course's Azure Blob/ADLS and AWS-to-Azure migration checklist is not treated as applicable because this is a POC, not a migration project.
+- **Verified with Docker Desktop:** Compose built and started the API, web, and PostgreSQL services; the PostgreSQL health check passed; the web container served the app; and the containerized API/database smoke test passed. Podman itself is not installed, so Podman execution remains unverified.
+- **Not done:** AWS RDS creation, network/security configuration, cost review, and API connection. No cloud resources or credentials are included in this repository.
+- **Course evidence:** Trello state and Omnivox submissions must be updated by the project owner. This repository contains the evidence artifacts that can be prepared and locally verified.

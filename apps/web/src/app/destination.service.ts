@@ -12,11 +12,24 @@ export interface Destination {
   imageUrl: string | null;
 }
 
+export interface Activity {
+  id: number;
+  destinationId: number;
+  name: string;
+  description: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DestinationService {
   private readonly http = inject(HttpClient);
 
   getDestinations(): Observable<Destination[]> {
     return this.http.get<Destination[]>(`${environment.apiBaseUrl}/destinations`);
+  }
+
+  getActivities(destinationId: number): Observable<Activity[]> {
+    return this.http.get<Activity[]>(
+      `${environment.apiBaseUrl}/destinations/${destinationId}/activities`,
+    );
   }
 }

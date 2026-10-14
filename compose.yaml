@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: teleport_dev
+      POSTGRES_USER: teleport_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a local-only POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - teleport-postgres:/var/lib/postgresql/data
+      - ./database/schema/001_initial.sql:/docker-entrypoint-initdb.d/001_initial.sql:ro
+      - ./database/seed/002_demo_data.sql:/docker-entrypoint-initdb.d/002_demo_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__TeleportDatabase: "Host=postgres;Port=5432;Database=teleport_dev;Username=teleport_app;Password=${POSTGRES_PASSWORD:?Set a local-only POSTGRES_PASSWORD in .env}"
+    ports:
+      - "127.0.0.1:5079:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "127.0.0.1:4200:80"
+    depends_on:
+      - api
+
+volumes:
+  teleport-postgres:
