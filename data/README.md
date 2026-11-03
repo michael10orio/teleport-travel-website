@@ -27,3 +27,9 @@ psql -v ON_ERROR_STOP=1 -d teleport_dev -f database/seed/002_demo_data.sql
 ```
 
 For a fresh local PostgreSQL container, Compose mounts the schema and seed as initialization scripts; PostgreSQL only runs those scripts when its data directory is first initialized. Back up any existing data before changing or recreating a database volume.
+
+## Azure Blob Storage / ADLS handoff
+
+The `raw/`, `cleaned/`, and this README are organized under `data/` for a storage handoff. `scripts/upload-data-to-azure.sh` uploads this tree into an existing Azure Blob container under the `teleport/` prefix, using the Azure CLI's signed-in identity rather than account keys. The script can create the container if it does not exist and requires permission to write blobs. It does not create a storage account. Existing blobs are left untouched by default; set `AZURE_BLOB_OVERWRITE=true` only when replacing them is intended.
+
+The upload has not been run. Azure CLI 2.91.0 is installed in `~/.local/venvs/azure-cli` and browser sign-in succeeded, but Azure management calls currently return `SubscriptionNotFound`. An approved existing storage account/container and appropriate Blob Data permissions are still required.

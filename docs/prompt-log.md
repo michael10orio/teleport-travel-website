@@ -89,14 +89,87 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **Limitations:** The Trips page calls the real API but cannot load or save trips until PostgreSQL is running. The database runtime remains deferred to the Podman stage.
 - **Environment note:** Installing `@angular/forms` reported 13 npm audit findings (11 high, 2 critical). They have not been individually reviewed or remediated.
 
-## 2026-10-14 - Course Milestone Gap Closure and Local Data Flow
+## 2026-10-25 - Week 6 Destination ETL Pipeline
 
-- **Task:** Complete the unfinished work described in the supplied Week 2, Week 3, and Week 5 instructions, while keeping the existing project brief's POC and Podman/AWS direction.
-- **Prompt:** "lets do all tasks we havent done in all weeks of instruction"
-- **AI tool used:** GitHub Copilot in VS Code.
-- **Student direction:** The student selected the existing project brief's Podman + AWS PostgreSQL path rather than the course's Azure regular-project path.
-- **What was actually used:** Refined project and data-collection requirements; architecture and sequence diagrams; sourced destination/activity CSVs and idempotent PostgreSQL seed SQL; an API smoke-test script that creates and removes only its own test trip; API/web Dockerfiles, Compose, and Nginx proxy configuration; and a course-progress tracker.
-- **Changes made:** Seeded two destinations and five activities into local `teleport_dev`. Updated outdated frontend copy to match the implemented trip features. Did not modify the pre-existing trip. Did not provision AWS resources, update Trello/Omnivox, or push to GitHub because cloud costs/permissions and account/board/remote access are not available here.
-- **Verification:** `dotnet build apps/api/Teleport.Api.csproj` succeeded with zero warnings/errors. `npx nx build web` succeeded with existing initial bundle and app stylesheet budget warnings. The API smoke test passed health, destination/search/activity reads, invalid-input validation, trip create/read/delete, itinerary add/list/reorder/delete, and expense create/list/update/delete; all test records were removed. Browser testing confirmed the UI created a test trip, added and reordered itinerary items, added and edited an expense, and removed those test records. Local counts after cleanup were two destinations, five activities, one pre-existing trip, zero itinerary items, and zero expenses. The Compose database also has zero test trips, itinerary items, or expenses after cleanup. Compose configuration validation passed.
-- **Container/cloud status:** Docker Desktop built and started the API, web, and PostgreSQL Compose services. The database health check passed, the web container served Angular and proxied `/api`, and the complete API smoke test passed against the container database. Podman-specific execution is not claimed. AWS RDS remains unprovisioned pending explicit cost, region, sizing, and network approval.
-- **Saved evidence:** `docs/frontend-destination-discovery.png`, `docs/frontend-trip-planning.png`, `docs/api-destinations-response.png`, `docs/openapi-document.png`, `docs/requirements-document.png`, and `docs/prompt-log-document.png` capture the frontend, integration flow, API response, OpenAPI document, requirements, and Prompt Log. The trip-planning image shows the temporary demonstration trip before it was deleted. Omnivox upload remains outstanding. Trello and GitHub remote access are also not configured.
+- **Task:** Implement and verify a small ETL workflow for sourced destination and activity data.
+- **Prompt/authorization:** The user asked to complete the course assignments using the supplied references and to continue code-first.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Keep the workflow reproducible and local: validate/normalize the raw CSV, write cleaned outputs, load PostgreSQL tables idempotently, and report actual data-quality counts.
+- **What was actually used:** `scripts/transform_destination_research.py`, `scripts/load_destination_data.sql`, `scripts/run_destination_etl.sh`, and `docs/data-pipeline-v0.md`. The isolated `teleport_etl_demo` database is the target; credentials are not committed.
+- **Changes made by the student:** The student reviewed the project data; formatting edits to cleaned CSV files preserve the same parsed records.
+- **Verification:** Seven raw rows produced two destinations and five activities. Blank required values, duplicate keys, orphan activities, and invalid rows counted zero. A repeat load inserted zero additional records.
+- **Limitations:** This is a local demonstration pipeline, not a cloud-hosted ETL service. No Azure resources were provisioned.
+
+## 2026-10-25 - Week 7 SQL Analysis and Data Quality
+
+- **Task:** Add assignment-aligned SQL analysis and run it against the current Teleport database.
+- **Prompt/authorization:** The user asked to complete the course assignments and refer to the supplied assignment references.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Use read-only joins, filters, grouping/counts, SUM/AVG, and explicit data-quality checks, then report the observed results without drawing claims the data cannot support.
+- **What was actually used:** Ten queries in `database/analysis/week-7-queries.sql` and the results/interpretation in `docs/analysis/week-7-results.md`.
+- **Verification:** The database had two destinations and five activities, with zero trips, itinerary items, or expenses. Lisbon had three activities and Porto had two; all recorded quality-issue counts were zero. Expense aggregates are `NULL` because no expense rows exist.
+- **Limitations:** The destination sample is small and does not support broad travel-market conclusions; no spending conclusion is possible without expense data.
+
+## 2026-10-25 - Week 8 Analytics Architecture
+
+- **Task:** Document an operational-versus-analytical architecture and a small reporting proof of concept.
+- **Prompt/authorization:** The user asked to complete the course assignments and refer to the supplied assignment references.
+- **AI tool used:** GitHub Copilot.
+- **AI suggestion:** Keep current OLTP operations separate from proposed analytical processing, identify a minimal fact/dimension grain, and label undeployed components as proposals.
+- **What was actually used:** `docs/analytics-architecture-v0.md`, `database/schema/003_reporting.sql`, and the Week 7 read-only analysis queries. The SQL adds two reporting views and two functions; the architecture proposes `FactExpense`, `DimTrip`, and `DimDate` without creating a warehouse.
+- **Verification:** The reporting schema was applied to `teleport_dev`; the views/functions and analysis queries returned against the local database. No separate warehouse or cloud analytics service was created.
+- **Limitations:** There are no trip or expense rows, so trip/expense reporting currently returns empty or `NULL` results. The proposed dimensional model is not deployed.
+
+## 2026-10-25 - Docker Compose Runtime Recheck
+
+- **Task:** Resume and verify the local containerized application for the course containerization milestone.
+- **Prompt/authorization:** The user asked to continue the assignment work and save verified progress.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** The previously created Docker Compose containers were started without recreating services or resetting the database volume. A random local-only password was passed to the command environment and was not written to a file or displayed.
+- **Verification:** PostgreSQL reported healthy; the API health and destination endpoints returned HTTP 200; the web root returned HTTP 200; and `scripts/smoke-test-api.sh` passed, including cleanup of its uniquely named trip and child records.
+- **Limitations:** A fresh `docker compose up --build` still fails when Docker returns HTTP 500 while pulling `postgres:17-alpine`. Podman runtime verification is recorded in a later entry; the Teleport stack itself remains on Docker Compose.
+
+## 2026-10-25 - Azure Blob Data Preparation
+
+- **Task:** Prepare the reviewed raw and cleaned project data for the regular-project Azure Blob Storage/ADLS requirement.
+- **Prompt/authorization:** The user asked to complete the requirements in the supplied assignment references.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** `scripts/upload-data-to-azure.sh` uploads the existing `data/` tree under a `teleport/` prefix in an existing Azure Blob container. It uses Azure CLI login/RBAC, stores no keys, and does not create a storage account. The data layout and prerequisites are documented in `data/README.md`.
+- **Verification:** `bash -n` passed; with placeholder account/container values, the script stopped before network operations because Azure CLI was not yet installed.
+- **Limitations:** No Azure login, storage account/container, cloud upload, or cloud cost was initiated. The owner reports having no Azure account. Homebrew's source build was stopped after it required a lengthy OpenSSL compile on macOS 14; Azure CLI 2.91.0 was installed in an isolated Python 3.14 virtual environment instead.
+
+## 2026-10-25 - Podman Runtime and Docker Cleanup
+
+- **Task:** Install and verify Podman on the Intel Mac, and remove Docker artifacts unrelated to Teleport.
+- **Prompt/authorization:** The user requested Podman installation and safe removal of Docker items not used by this project.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** The current Homebrew Podman formula required arm64, so the official Podman 5.5.2 universal macOS package was used instead. Its published SHA-256 matched and macOS reported the developer signature as trusted and notarized. The Podman CLI is installed under `/opt/podman/bin`; the default machine uses 2 CPUs, 2 GB memory, and a 30 GB disk.
+- **Verification:** Podman machine reports amd64 and responds to `podman info`; `podman run --rm docker.io/library/hello-world:latest` succeeded. Docker’s Teleport web/API/PostgreSQL containers remain running. Stopped gym membership and SQL Server containers, their images, finance-only images, and the orphaned gym Postgres volume were removed. `docker builder prune --all --force` removed the reclaimable build cache; the final Docker report showed 0 B build cache. Teleport’s named volume was preserved.
+- **Limitations:** The Teleport Compose stack was not migrated to Podman. Azure CLI is installed but cannot be signed in because the owner reports having no Azure account; no cloud upload occurred.
+
+## 2026-10-25 - Azure CLI Installation and Upload Preflight
+
+- **Task:** Install Azure CLI and prepare the local workflow for the reviewed data upload.
+- **Prompt/authorization:** The user requested Azure CLI installation/sign-in and identified that no Azure account was available.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** Azure CLI 2.91.0 was installed in the isolated Python 3.14 environment at `~/.local/venvs/azure-cli`. The Homebrew route was stopped after its macOS 14 source build proved lengthy; the Python installation built `cryptography` in its isolated environment.
+- **Verification:** `az version` reported 2.91.0; `az storage blob upload-batch --help` confirmed the helper's flags. `scripts/upload-data-to-azure.sh` passed `bash -n`, located the venv CLI, and exited before cloud changes because no Azure login is active.
+- **Limitations:** The owner reports having no Azure account. No login, resource creation, upload, or cloud cost was initiated. The helper is ready for an approved account/container once available.
+
+## 2026-10-26 - Azure Subscription Access Check
+
+- **Task:** Sign in to Azure CLI and verify the account can access a subscription before creating project storage.
+- **Prompt/authorization:** The user clarified that they have a Vanier College Microsoft account and approved private Blob Storage in Canada East with Standard_LRS, including possible storage charges.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** Browser-based `az login --allow-no-subscriptions` completed using the isolated Azure CLI installation. No credentials or verification codes were sent through chat.
+- **Verification:** The ID supplied in chat matches the Portal's `Directory ID`, not a subscription ID. `az account show` reports `state: Enabled`; a read-only `az group list` and storage-account name check return `SubscriptionNotFound`. No resource group, storage account, container, or upload was created.
+- **Next step:** In Azure Portal, open **Subscriptions** and locate the actual subscription ID, or ask the school administrator whether a subscription is assigned to this directory. Retry read-only resource checks before provisioning.
+
+## 2026-11-02 - Week 6 ETL Reverification
+
+- **Task:** Re-run the Week 6 transform and database load without changing the project's reviewed CSV formatting.
+- **Prompt/authorization:** The user asked to continue and complete the ETL assignment evidence.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** `scripts/transform_destination_research.py` wrote the transformed CSVs to a temporary directory. Their parsed records matched the reviewed files in `data/cleaned/`. The existing loader SQL was run against the isolated `teleport_etl_demo` database using those temporary outputs.
+- **Verification:** Seven raw rows produced two destination rows and five activity rows. All seven staging checks reported zero data-quality issues; the idempotent insert added zero duplicate records and final counts remained 2 / 5.
+- **Limitations:** This verifies the local batch pipeline only. No Azure resource or upload was created; Azure management calls currently fail with `SubscriptionNotFound` for the supplied directory ID.
