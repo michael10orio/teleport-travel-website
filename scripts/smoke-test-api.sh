@@ -77,6 +77,7 @@ cleanup() {
 trap cleanup EXIT
 
 assert_status 200 "$(request GET /api/health)"
+assert_status 200 "$(request GET /api/health/database)"
 assert_status 200 "$(request GET /openapi/v1.json)"
 assert_status 200 "$(request GET /api/destinations)"
 destination_count="$(json_length "$last_body")"

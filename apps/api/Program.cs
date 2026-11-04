@@ -40,6 +40,19 @@ app.MapGet("/api/health", () => TypedResults.Ok(new { status = "ok" }))
 	.WithDescription("Returns a success response while the API host is running.")
 	.Produces(StatusCodes.Status200OK);
 
+app.MapGet("/api/health/database", async (TeleportDbContext db, CancellationToken cancellationToken) =>
+{
+	var canConnect = await db.Database.CanConnectAsync(cancellationToken);
+	var status = canConnect ? "ok" : "unavailable";
+	var statusCode = canConnect ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable;
+	return Results.Json(new { status }, statusCode: statusCode);
+})
+	.WithName("GetDatabaseHealth")
+	.WithSummary("Check database connectivity")
+	.WithDescription("Returns 200 when PostgreSQL accepts a connection, otherwise 503.")
+	.Produces(StatusCodes.Status200OK)
+	.Produces(StatusCodes.Status503ServiceUnavailable);
+
 app.MapDestinationEndpoints();
 app.MapTripEndpoints();
 app.MapExpenseEndpoints();

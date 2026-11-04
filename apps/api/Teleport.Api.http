@@ -4,6 +4,10 @@
 GET {{baseUrl}}/api/health
 Accept: application/json
 
+### Check API database connectivity
+GET {{baseUrl}}/api/health/database
+Accept: application/json
+
 ### Read the OpenAPI document
 GET {{baseUrl}}/openapi/v1.json
 Accept: application/json
