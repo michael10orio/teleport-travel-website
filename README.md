@@ -127,7 +127,8 @@ The Compose stack binds its ports to localhost. Stop containers without deleting
 - Reviewed demonstration data: 2 destinations and 5 activities. The ETL transform validates 7 raw rows and is idempotent.
 - Current operational database: 0 trips, 0 itinerary items, and 0 expenses. Therefore no real spending analysis is possible; expense `SUM`/`AVG` are `NULL`, not measured zero spending.
 - The business interpretation is limited to curated activity coverage (Lisbon 3, Porto 2); this tiny sample does not establish popularity, quality, cost, or traveler preference.
-- The GitHub Actions workflow builds the app/API, starts Docker Compose with an ephemeral password, checks service readiness, runs the ETL into a separate database, uploads cleaned data as a 7-day artifact, runs CRUD smoke tests, and cleans up. Successful run: [41903518461](https://github.com/michael10orio/teleport-travel-website/actions/runs/41903518461).
+- The GitHub Actions workflow builds the app/API, starts Docker Compose with an ephemeral password, checks service readiness, runs the ETL into a separate database, uploads cleaned data as a 7-day artifact, runs CRUD smoke tests, and cleans up. Latest successful run: [41908117744](https://github.com/michael10orio/teleport-travel-website/actions/runs/41908117744).
+- The final presentation/demo sequence is outlined in [docs/final-demo-v0.md](docs/final-demo-v0.md).
 - Azure CLI sign-in succeeded, but Azure management calls return `SubscriptionNotFound`; AWS and Azure resources are not provisioned. No cloud monitoring service is deployed.
 - The API has no authentication/authorization and is not production-ready. See [docs/security-and-secrets-v0.md](docs/security-and-secrets-v0.md) and [docs/monitoring-v0.md](docs/monitoring-v0.md) for security and monitoring scope.
 
@@ -138,7 +139,7 @@ The Compose stack binds its ports to localhost. Stop containers without deleting
 - PostgreSQL has the five-table schema and a small sourced dataset: 2 destinations and 5 activities. No trips, itinerary items, or expenses remain.
 - Week 6 ETL is verified and idempotent: 7 raw rows become 2 destinations and 5 activities in `teleport_etl_demo`.
 - Week 7 has ten analysis/data-quality queries and a results interpretation; Week 8 has two reporting views, two functions, and an OLTP/OLAP design. No warehouse is deployed.
-- GitHub Actions run `41903518461` passed frontend/API builds, Compose build/start, API/database/web readiness, scheduled ETL, 7-day cleaned-data artifact upload, CRUD smoke tests, and cleanup.
+- GitHub Actions run `41908117744` passed frontend/API builds, Compose build/start, API/database/web readiness, scheduled ETL, 7-day cleaned-data artifact upload, CRUD smoke tests, and cleanup.
 - Podman 5.5.2 is installed and its amd64 `hello-world` test passed; the Teleport stack itself is still run with Docker Compose. The Angular build succeeds with non-fatal bundle/style budget warnings.
 
 ## Remaining Requirements and Limitations

@@ -218,3 +218,12 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **What was actually used:** GitHub Actions run `41903518461` triggered from the pushed workflow. It builds the app and API, starts a temporary Compose stack with a runner-only random password, creates an isolated `teleport_etl_demo` database, runs `scripts/run_destination_etl.sh`, uploads `data/cleaned/` as a 7-day artifact, runs the API CRUD smoke test, and tears down the containers/volume.
 - **Verification:** The run completed successfully; build, service readiness, ETL, artifact upload, smoke test, and cleanup steps passed. The manual local ETL verification remains in `docs/data-pipeline-v0.md`.
 - **Limitations:** The workflow is GitHub-hosted automation, not Azure Data Factory or another deployed cloud data service. No Azure/AWS storage or database resource is configured; Azure subscription access remains blocked by `SubscriptionNotFound`.
+
+## 2026-11-04 - Final Presentation Demo Guide
+
+- **Task:** Prepare a truthful run-of-show for the final project presentation and live demonstration.
+- **Prompt/authorization:** The user asked to complete the final-project requirements and review remaining work.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** `docs/final-demo-v0.md` outlines the project objective, actual local architecture, app workflow, ETL and SQL findings, CI run, security/monitoring status, limitations, and contribution attribution.
+- **Verification:** The guide cites the successful GitHub Actions run `41908117744` and actual database results. It clearly labels Azure/AWS deployment and the dimensional warehouse as not deployed.
+- **Limitations:** The owner still needs to confirm additional team members, rehearse the demo, and submit screenshots/files to Omnivox.

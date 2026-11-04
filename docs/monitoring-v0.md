@@ -8,7 +8,7 @@
 - `GET /api/health/database` calls EF Core's `CanConnectAsync` for PostgreSQL. It returns HTTP 200 with `{"status":"ok"}` when connected and HTTP 503 with `{"status":"unavailable"}` when PostgreSQL cannot be reached. It does not expose connection details or exception messages.
 - Local Release verification on 2026-11-04 returned HTTP 200 from both `/api/health` and `/api/health/database` against PostgreSQL.
 - `scripts/smoke-test-api.sh` checks both endpoints before exercising database-backed routes.
-- GitHub Actions run `41903518461` passed frontend/API builds, Compose build/start, API/database/web readiness, the scheduled ETL, transformed-data artifact upload, CRUD smoke tests, and cleanup.
+- GitHub Actions run `41908117744` passed frontend/API builds, Compose build/start, API/database/web readiness, the scheduled ETL, transformed-data artifact upload, CRUD smoke tests, and cleanup.
 
 ## Logs and Run History
 

@@ -53,7 +53,7 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 | --- | --- | --- |
 | Pipeline design | Complete locally | `data-pipeline-v0.md` documents raw CSV → Python validation/normalization → cleaned CSV → PostgreSQL staging/quality checks → destination/activity tables. |
 | Source and destination connections | Verified locally | Source is `data/raw/destination-research.csv`; destination was the isolated local `teleport_etl_demo` PostgreSQL database. Credentials are not stored in the repo. |
-| Successful pipeline run | Verified locally and automated in GitHub Actions | Seven source records transformed to 2 destinations and 5 activities. Local reruns used temporary output files to preserve reviewed CSV formatting. CI run `41903518461` executes the ETL against an isolated database and uploads a 7-day CSV artifact. |
+| Successful pipeline run | Verified locally and automated in GitHub Actions | Seven source records transformed to 2 destinations and 5 activities. Local reruns used temporary output files to preserve reviewed CSV formatting. Latest successful CI run `41908117744` executes the ETL against an isolated database and uploads a 7-day CSV artifact. |
 | Transform/data-quality evidence | Verified locally | Blank required fields, duplicate keys, orphan activities, and invalid rows counted zero; the repeated load inserted zero additional rows. See `data-pipeline-v0.md`. |
 | Trello update, architecture screenshot, and run screenshots | Pending manual evidence | The owner manages the Trello board and personally captures/submits screenshots. The evidence map in `data-pipeline-v0.md` lists the real artifacts to capture; no screenshot is fabricated. |
 
@@ -81,7 +81,7 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 
 | Requirement | Status | Evidence / remaining action |
 | --- | --- | --- |
-| CI/CD | Implemented and passed | `.github/workflows/ci.yml`; successful run `41903518461` covers build, Compose, readiness, ETL, artifact, smoke test, and cleanup. |
+| CI/CD | Implemented and passed | `.github/workflows/ci.yml`; successful run `41908117744` covers build, Compose, readiness, ETL, artifact, smoke test, and cleanup. |
 | Security and secrets | Partially implemented | `docs/security-and-secrets-v0.md`; User Secrets, ignored `.env`, ephemeral CI password, and CLI/RBAC upload helper. API authentication, cloud secret manager, and deployed cloud permissions remain absent. |
 | Monitoring | Local/CI monitoring implemented; cloud monitoring absent | `docs/monitoring-v0.md`; API and DB health checks, Compose logs, and GitHub Actions run history. No Azure Monitor/App Insights/Log Analytics or CloudWatch. |
 | End-to-end validation | Verified locally and in CI | Angular web, .NET API, PostgreSQL, CRUD smoke test, and automated ETL run. No cloud-hosted app/data path. |
@@ -89,15 +89,16 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 | GitHub repository | Milestone history pushed; final review pending | Week 6–8, CI, and monitoring commits are on `origin/main`. Other working-tree changes remain uncommitted and need review. No high-confidence secret patterns were found in the current workspace scan; this is not a full historical secret audit. |
 | Trello and evidence | Owner action pending | Owner maintains the board and screenshots; manual Omnivox submission is still required. |
 | Final README/report | Updated; team roster needs confirmation | `README.md` covers objective, technologies, setup, results, and limitations; add any other team members before submitting. |
+| Final presentation/demo | Demo guide prepared; live demonstration remains owner-run | `docs/final-demo-v0.md` provides the sequence and verified claims. Confirm additional contributors, rehearse the local app/ETL/CI flow, and present cloud services as unprovisioned. |
 | AI Prompt Log | Documented | `docs/prompt-log.md` records assistance and validation for ETL, analysis, architecture, security, and CI work. |
 | Data mining/business analysis | Completed for the small sample | Week 7 query/results files include joins, filters, aggregates, quality checks, interpretation, and sample-size/spending limitations. |
-| Automated workflow | Implemented and passed | Scheduled/push/PR/manual GitHub Actions workflow runs raw CSV → transform → isolated PostgreSQL → 7-day artifact; run `41903518461`. |
+| Automated workflow | Implemented and passed | Scheduled/push/PR/manual GitHub Actions workflow runs raw CSV → transform → isolated PostgreSQL → 7-day artifact; run `41908117744`. |
 | Database/cloud infrastructure | Local database/container stack verified; cloud resources blocked | Local schema, demo data, Compose, Podman runtime, and API connection are verified. AWS is not provisioned; Azure management returns `SubscriptionNotFound` because the supplied ID was the directory ID, not the subscription ID. |
 
 ## Cross-week evidence limitations
 
 - Local PostgreSQL 18.3 is reachable. `teleport_dev` currently contains two demonstration destinations, five activities, and zero trips, itinerary items, or expenses after smoke-test cleanup. The separate `teleport_etl_demo` database contains the ETL destination/activity output.
-- `GET /api/health` checks API-host liveness; `GET /api/health/database` separately verifies PostgreSQL readiness. Both returned HTTP 200 locally. GitHub Actions run `41903518461` passed frontend/API builds, fresh Compose build, readiness checks, automated ETL/artifact upload, CRUD smoke tests, and cleanup.
+- `GET /api/health` checks API-host liveness; `GET /api/health/database` separately verifies PostgreSQL readiness. Both returned HTTP 200 locally. GitHub Actions run `41908117744` passed frontend/API builds, fresh Compose build, readiness checks, automated ETL/artifact upload, CRUD smoke tests, and cleanup.
 - Screenshots are saved locally in `docs/`, but their existence is not an Omnivox submission; the project owner must upload them.
 - Azure upload and AWS resource provisioning are not done; both require account access and any applicable cost approval.
 - Local credential handling was reviewed in `docs/security-and-secrets-v0.md`: `.env` is ignored, the API development connection string is in .NET User Secrets, and CI generates an ephemeral database password. The API has no authentication and no cloud secret manager is deployed; do not expose this PoC publicly.
