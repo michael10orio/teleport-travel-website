@@ -12,7 +12,29 @@ flowchart LR
 
 The existing PostgreSQL database is the operational system of record. The app and API use normalized tables for destinations, activities, trips, itinerary items, and expenses.
 
-## Proposed Analytical Data Flow
+## Implemented Automated CI and ETL Flow
+
+GitHub Actions runs on pushes, pull requests, a weekly schedule, or manual dispatch. The workflow builds both application projects, starts an ephemeral Docker Compose stack, checks service readiness, runs the ETL against an isolated database, publishes the cleaned CSV output as a 7-day artifact, runs the CRUD smoke test, and removes the temporary stack.
+
+```mermaid
+flowchart LR
+    Trigger[Push / PR / weekly schedule / manual] --> CI[GitHub Actions]
+    CI --> Build[Build Angular and .NET API]
+    Build --> Stack[Ephemeral Docker Compose stack]
+    Stack --> Ready[API, database, and web readiness]
+    Ready --> Source[Reviewed raw destination CSV]
+    Source --> Transform[Python validation and normalization]
+    Transform --> Clean[Cleaned destination/activity CSVs]
+    Transform --> ETLDB[(Isolated PostgreSQL teleport_etl_demo)]
+    ETLDB --> Quality[Staging quality checks and idempotent load]
+    Clean --> Artifact[GitHub Actions artifact<br/>7-day retention]
+    Quality --> Smoke[API CRUD smoke test]
+    Smoke --> Cleanup[Compose cleanup]
+```
+
+This automation is hosted by GitHub Actions; the PostgreSQL target and Compose stack exist only for the run. It is not an Azure Data Factory or AWS service deployment.
+
+## Proposed Future Warehouse Data Flow
 
 ```mermaid
 flowchart LR
@@ -21,7 +43,7 @@ flowchart LR
     MART --> REPORT[SQL reports / course analysis]
 ```
 
-The local Week 6 pipeline currently transforms reviewed raw CSV research into cleaned CSV files and loads destinations/activities into PostgreSQL. The diagram's OLTP-to-analytics batch is a proposed next step, not a completed or scheduled service.
+The separate operational-PostgreSQL-to-analytics-schema batch is a proposed next step, not a completed or scheduled warehouse service. The current implemented ETL reads reviewed CSV research, not application OLTP tables.
 
 ## OLTP vs. OLAP
 
