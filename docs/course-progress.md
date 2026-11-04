@@ -83,6 +83,7 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 - `GET /api/health` checks API-host liveness only; database-backed destination requests and the successful CRUD smoke test separately verify API-to-database communication.
 - Screenshots are saved locally in `docs/`, but their existence is not an Omnivox submission; the project owner must upload them.
 - Azure upload and AWS resource provisioning are not done; both require account access and any applicable cost approval.
+- Local credential handling was reviewed in `docs/security-and-secrets-v0.md`: `.env` is ignored, the API development connection string is in .NET User Secrets, and CI generates an ephemeral database password. The API has no authentication and no cloud secret manager is deployed; do not expose this PoC publicly.
 - Podman 5.5.2 and its local amd64 runtime are verified with `hello-world`; the Teleport stack itself has not been run under Podman. Docker Desktop availability has been intermittent; while available, the Compose stack runs and passes verification. A fresh Compose build remains blocked by a Docker engine HTTP 500 during image pull.
 - GitHub remote `origin` exists, but current uncommitted edits must be reviewed, committed, and pushed before claiming they are on GitHub.
 - Screenshot files saved locally still need the project owner's review and manual Omnivox submission.

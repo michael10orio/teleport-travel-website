@@ -191,3 +191,12 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **What was actually used:** Read-only queries in `database/analysis/week-8-reporting-demo.sql` against views and functions defined in `database/schema/003_reporting.sql` on `teleport_dev`.
 - **Verification:** The destination activity-count view returned Lisbon=3 and Porto=2; the destination-count function returned 3 for Lisbon. Trip/expense views returned no trip rows, and the trip-expense function returned `NULL`, consistent with the current database's 0 trips and 0 expenses.
 - **Limitations:** This is a reporting proof of concept over operational PostgreSQL, not a deployed warehouse. No synthetic trip or expense facts were added.
+
+## 2026-11-04 - Final Project Security Review
+
+- **Task:** Review repository secret handling and document the remaining security gaps for final-project evidence.
+- **Prompt/authorization:** The user asked to work through the final-project requirements one at a time.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** `docs/security-and-secrets-v0.md` documents .NET User Secrets, ignored local `.env`, placeholder-only `.env.example`, per-run CI password generation, least-privilege GitHub workflow permissions, and Azure CLI login/RBAC use by the upload helper.
+- **Verification:** `dotnet user-secrets list` confirmed the `ConnectionStrings:TeleportDatabase` key without exposing its value. `.env` is ignored and absent. A high-confidence scan found no AWS access-key, GitHub-token, or private-key patterns in the current workspace.
+- **Limitations:** The API has no authentication/authorization, no Azure Key Vault or AWS secret manager is deployed, no cloud application is running, and the token-pattern scan is not a full historical Git-secret audit. The current build is for local PoC use only.
