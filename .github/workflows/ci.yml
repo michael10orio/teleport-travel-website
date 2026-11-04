@@ -49,9 +49,15 @@ jobs:
       - name: Wait for API and web
         run: |
           curl --fail --silent --show-error --output /dev/null \
+            --write-out 'API health HTTP %{http_code}\n' \
             --retry 30 --retry-connrefused --retry-delay 2 --retry-max-time 90 \
             http://127.0.0.1:5079/api/health
           curl --fail --silent --show-error --output /dev/null \
+            --write-out 'API destinations HTTP %{http_code}\n' \
+            --retry 30 --retry-connrefused --retry-delay 2 --retry-max-time 90 \
+            http://127.0.0.1:5079/api/destinations
+          curl --fail --silent --show-error --output /dev/null \
+            --write-out 'Web HTTP %{http_code}\n' \
             --retry 30 --retry-connrefused --retry-delay 2 --retry-max-time 90 \
             http://127.0.0.1:4200/
 
