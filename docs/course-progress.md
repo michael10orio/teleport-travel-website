@@ -65,7 +65,7 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 | Run analytical queries | Verified locally | Queries run on `teleport_dev`: 2 destinations, 5 activities, 0 trips, 0 itinerary items, 0 expenses. |
 | Data-quality checks | Verified locally | Blank fields, duplicate destination keys, orphan activities, invalid trip ranges, and non-positive expense amounts all returned zero. |
 | Results and business interpretation | Documented | `docs/analysis/week-7-results.md` states that destination coverage can be compared only for this tiny sample; no spending conclusion is supported because there are no expense rows. |
-| Trello, SQL screenshots, and GitHub progress | Pending evidence/commit | Capture actual query results and update the real Trello board; commit and push the current pending edits before claiming remote progress. |
+| Trello, SQL screenshots, and GitHub progress | Query/results committed and pushed; manual screenshots pending | `database/analysis/week-7-queries.sql` and `docs/analysis/week-7-results.md` are in GitHub commit `c84b45c`. The saved query file is evidence; the owner still needs to capture any required result screenshots and update/submit the Trello evidence. |
 
 ## Week 8 — Operational and Analytical Architecture
 
