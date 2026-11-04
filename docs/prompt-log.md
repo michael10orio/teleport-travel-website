@@ -173,3 +173,21 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **What was actually used:** `scripts/transform_destination_research.py` wrote the transformed CSVs to a temporary directory. Their parsed records matched the reviewed files in `data/cleaned/`. The existing loader SQL was run against the isolated `teleport_etl_demo` database using those temporary outputs.
 - **Verification:** Seven raw rows produced two destination rows and five activity rows. All seven staging checks reported zero data-quality issues; the idempotent insert added zero duplicate records and final counts remained 2 / 5.
 - **Limitations:** This verifies the local batch pipeline only. No Azure resource or upload was created; Azure management calls currently fail with `SubscriptionNotFound` for the supplied directory ID.
+
+## 2026-11-04 - Week 7 SQL Analysis Rerun
+
+- **Task:** Re-run the saved Week 7 analytical and quality-check query pack for the assignment evidence.
+- **Prompt/authorization:** The user asked to continue the next assignment and verify its current results.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** Read-only queries in `database/analysis/week-7-queries.sql` against local PostgreSQL `teleport_dev`.
+- **Verification:** The destination/activity join returned five rows; Lisbon had three activities and Porto two. The `Lisboa` filter returned Lisbon, the category grouping showed two City destinations, all six quality checks returned zero, and expense count was zero with `SUM`/`AVG` as `NULL`.
+- **Limitations:** No trips, itinerary items, or expenses exist. No records were inserted to populate analytical measures; spending conclusions remain unsupported.
+
+## 2026-11-04 - Week 8 Reporting Demonstration
+
+- **Task:** Verify the operational-versus-analytical reporting proof of concept for Week 8.
+- **Prompt/authorization:** The user asked to complete the next assignment, including analytics architecture and a small analytical demonstration.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** Read-only queries in `database/analysis/week-8-reporting-demo.sql` against views and functions defined in `database/schema/003_reporting.sql` on `teleport_dev`.
+- **Verification:** The destination activity-count view returned Lisbon=3 and Porto=2; the destination-count function returned 3 for Lisbon. Trip/expense views returned no trip rows, and the trip-expense function returned `NULL`, consistent with the current database's 0 trips and 0 expenses.
+- **Limitations:** This is a reporting proof of concept over operational PostgreSQL, not a deployed warehouse. No synthetic trip or expense facts were added.

@@ -74,7 +74,7 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 | Updated analytical architecture | Drafted | `docs/analytics-architecture-v0.md` separates current operational PostgreSQL from a proposed analytical flow. |
 | OLTP vs. OLAP comparison | Documented | The architecture note explains the distinction using Teleport examples. |
 | Fact/dimension-style design | Proposed | Minimal `FactExpense`, `DimTrip`, and `DimDate` grain is described; no warehouse tables are implemented. |
-| Analytical proof of concept | Partial | Week 7 read-only reporting queries and two views/functions exist; no separate analytics warehouse or non-empty expense analysis exists. |
+| Analytical proof of concept | Local reporting proof of concept implemented and verified | Two reporting views and two functions are defined in `database/schema/003_reporting.sql`; `database/analysis/week-8-reporting-demo.sql` returns the current destination/activity results. No separate warehouse is deployed, and trip/expense analysis remains empty because no such records exist. |
 | Trello, architecture screenshot, and commits | Pending evidence/commit | Use the actual diagram/document, update the real board, and commit/push verified changes. |
 
 ## Cross-week evidence limitations
