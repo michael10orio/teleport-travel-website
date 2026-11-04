@@ -225,7 +225,7 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **Prompt/authorization:** The user asked to complete the final-project requirements and review remaining work.
 - **AI tool used:** GitHub Copilot.
 - **What was actually used:** `docs/final-demo-v0.md` outlines the project objective, actual local architecture, app workflow, ETL and SQL findings, CI run, security/monitoring status, limitations, and contribution attribution.
-- **Verification:** The guide cites the successful GitHub Actions run `41909631564` and actual database results. It clearly labels Azure/AWS deployment and the dimensional warehouse as not deployed.
+- **Verification:** The guide cites GitHub Actions run `41935325901` and actual database results. It clearly labels Azure/AWS deployment and the dimensional warehouse as not deployed.
 - **Limitations:** The owner still needs to confirm additional team members, rehearse the demo, and submit screenshots/files to Omnivox.
 
 ## 2026-11-04 - Final Submission Verification
@@ -235,5 +235,5 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **AI tool used:** GitHub Copilot.
 - **What was actually used:** Fresh Angular production and .NET Release builds; `scripts/smoke-test-api.sh`; browser checks of home, destination details, trips, trip details, itinerary destination/activity additions, expense creation, dashboard visibility, and trip deletion. A local Podman Compose deployment was built and started; web/API/database readiness checks and the API smoke test passed. Temporary records were removed; the database returned to 2 destinations, 5 activities, and 0 trips, itinerary items, or expenses.
 - **Changes made:** Replaced stale future-work copy, fixed trip details remaining in a loading state after success, and resolved itinerary foreign keys to readable destination/activity names.
-- **Verification:** GitHub Actions run `41909631564` passed for commit `4938d20` and published one artifact. Today's local frontend changes and evidence updates are not included in that run; rerun CI after pushing them.
-- **Limitations:** The Angular build reports existing bundle/style budget warnings; no dedicated frontend unit-test files were found. The first Podman Compose build required several minutes of image downloads. AWS is suspended and Azure has no accessible subscription. The 30 screenshots are collected locally; Trello updates and Omnivox submission remain owner actions.
+- **Verification:** GitHub Actions run `41935325901` passed for commit `8ec063b`, including app builds, Compose readiness, ETL artifact, CRUD smoke tests, and cleanup. The implementation and evidence are pushed to `main`.
+- **Limitations:** The Angular build reports existing bundle/style budget warnings; no dedicated frontend unit-test files were found. The first Podman Compose build required several minutes of image downloads. AWS is suspended and Azure has no accessible subscription. Trello updates and Omnivox submission remain owner actions.

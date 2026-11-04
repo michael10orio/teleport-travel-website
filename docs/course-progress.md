@@ -53,7 +53,7 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 | --- | --- | --- |
 | Pipeline design | Complete locally | `data-pipeline-v0.md` documents raw CSV → Python validation/normalization → cleaned CSV → PostgreSQL staging/quality checks → destination/activity tables. |
 | Source and destination connections | Verified locally | Source is `data/raw/destination-research.csv`; destination was the isolated local `teleport_etl_demo` PostgreSQL database. Credentials are not stored in the repo. |
-| Successful pipeline run | Verified locally and automated in GitHub Actions | Seven source records transformed to 2 destinations and 5 activities. Local reruns used temporary output files to preserve reviewed CSV formatting. Latest successful CI run `41909631564` executes the ETL against an isolated database and uploads a 7-day CSV artifact. |
+| Successful pipeline run | Verified locally and automated in GitHub Actions | Seven source records transformed to 2 destinations and 5 activities. Local reruns used temporary output files to preserve reviewed CSV formatting. CI run `41935325901` for commit `8ec063b` ran ETL against an isolated database and uploaded a 7-day CSV artifact. |
 | Transform/data-quality evidence | Verified locally | Blank required fields, duplicate keys, orphan activities, and invalid rows counted zero; the repeated load inserted zero additional rows. See `data-pipeline-v0.md`. |
 | Trello update, architecture screenshot, and run screenshots | Screenshots captured and organized; Trello/Omnivox action pending | Week 6 screenshots are under `docs/evidence/week-6-etl/`. The owner still needs to update the board and upload the required evidence to Omnivox. |
 
@@ -81,24 +81,24 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 
 | Requirement | Status | Evidence / remaining action |
 | --- | --- | --- |
-| CI/CD | Implemented and passed | `.github/workflows/ci.yml`; successful run `41909631564` covers build, Compose, readiness, ETL, artifact, smoke test, and cleanup. |
+| CI/CD | Implemented and passed | `.github/workflows/ci.yml`; run `41935325901` passed build, Compose, readiness, ETL, artifact, smoke test, and cleanup for commit `8ec063b`. |
 | Security and secrets | Partially implemented | `docs/security-and-secrets-v0.md`; User Secrets, ignored `.env`, ephemeral CI password, and CLI/RBAC upload helper. API authentication, cloud secret manager, and deployed cloud permissions remain absent. |
 | Monitoring | Local/CI monitoring implemented; cloud monitoring absent | `docs/monitoring-v0.md`; API and DB health checks, Compose logs, and GitHub Actions run history. No Azure Monitor/App Insights/Log Analytics or CloudWatch. |
 | End-to-end validation | Verified locally and in CI | Angular web, .NET API, PostgreSQL, CRUD smoke test, and automated ETL run. No cloud-hosted app/data path. |
 | Final architecture | Documented for implemented components | `docs/analytics-architecture-v0.md`; local operational flow and actual CI/ETL artifact path are shown. AWS/Azure and the warehouse remain unimplemented. |
-| GitHub repository | Milestones and final report pushed; current local source updates pending | Week 6–8, CI, and monitoring are on `origin/main`. Today's frontend, data, API-helper, evidence, and documentation updates still need a commit and CI run. A workspace secret scan is not a full historical audit. |
+| GitHub repository | Implementation and evidence pushed; CI passed | Commit `8ec063b` includes the reviewed frontend, data, Azure upload helper, and 30 screenshots; run `41935325901` passed. A workspace secret scan is not a full historical audit. |
 | Trello and evidence | Screenshots organized; owner action pending | Screenshots are indexed in `docs/evidence/README.md`. The owner maintains the board and must upload the evidence to Omnivox. |
 | Final README/report | Updated; team roster needs confirmation | `README.md` covers objective, technologies, setup, results, and limitations; add any other team members before submitting. |
 | Final presentation/demo | Demo guide prepared; live demonstration remains owner-run | `docs/final-demo-v0.md` provides the sequence and verified claims. Confirm additional contributors, rehearse the local app/ETL/CI flow, and present cloud services as unprovisioned. |
 | AI Prompt Log | Documented | `docs/prompt-log.md` records assistance and validation for ETL, analysis, architecture, security, and CI work. |
 | Data mining/business analysis | Completed for the small sample | Week 7 query/results files include joins, filters, aggregates, quality checks, interpretation, and sample-size/spending limitations. |
-| Automated workflow | Implemented and passed | Scheduled/push/PR/manual GitHub Actions workflow runs raw CSV → transform → isolated PostgreSQL → 7-day artifact; run `41909631564`. |
+| Automated workflow | Implemented and passed | Scheduled/push/PR/manual GitHub Actions workflow runs raw CSV → transform → isolated PostgreSQL → 7-day artifact; run `41935325901`. |
 | Database/cloud infrastructure | Local stack verified; cloud resources blocked | Local Podman Compose includes PostgreSQL, API, and web. AWS is unavailable due to account suspension; Azure management returns `SubscriptionNotFound` because the supplied ID is a directory ID, not a subscription ID. |
 
 ## Shared Verification Notes
 
 - After smoke-test cleanup, the local app database contains 2 destinations, 5 activities, and no trips, itinerary items, or expenses. The separate `teleport_etl_demo` holds the same destination/activity output.
 - `GET /api/health` and `GET /api/health/database` returned HTTP 200 in the local Podman deployment. The API smoke test passed and removed its temporary records.
-- GitHub Actions run `41909631564` passed for pushed commit `4938d20`; it predates today's local source changes. The new changes need to be pushed and pass CI before being described as GitHub-verified.
+- GitHub Actions run `41935325901` passed for implementation/evidence commit `8ec063b`. Documentation updates after that commit do not change the app or workflow; check the Actions page for their push result.
 - The 30 supplied screenshots are organized in `docs/evidence/`; Omnivox upload and Trello updates are still manual owner tasks.
 - AWS is blocked by account suspension. Azure CLI sign-in succeeded, but management calls return `SubscriptionNotFound`; no cloud resource or upload has been created. Cloud monitoring, API authentication, and a cloud secret manager are not implemented. See `docs/security-and-secrets-v0.md` and `docs/monitoring-v0.md`.
