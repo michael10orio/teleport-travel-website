@@ -1,0 +1,69 @@
+<main class="destination-page">
+  <div class="container-xxl destination-content">
+    <a class="back-link" routerLink="/" fragment="destinations">
+      <span aria-hidden="true">←</span> Back to places
+    </a>
+
+    @if (isLoading()) {
+      <p class="page-state" role="status">Loading destination...</p>
+    } @else if (loadFailed()) {
+      <section class="page-state page-error" role="alert">
+        <h1>{{ invalidId ? 'Invalid destination' : 'Destination unavailable' }}</h1>
+        <p>
+          {{ invalidId ? 'The destination link is not valid.' : loadError() }}
+        </p>
+        @if (!invalidId) {
+          <button class="retry-button" type="button" (click)="retryLoad()">Try again</button>
+        }
+      </section>
+    } @else if (destination(); as place) {
+      <article class="destination-detail">
+        <header class="destination-hero">
+          @if (place.imageUrl) {
+            <img class="hero-image" [src]="place.imageUrl" [alt]="place.name + ', ' + place.region" />
+          } @else {
+            <div class="hero-image hero-placeholder" aria-hidden="true"></div>
+          }
+          <div class="hero-copy">
+            <p class="eyebrow">{{ place.category }} · {{ place.region }}</p>
+            <h1>{{ place.name }}</h1>
+            <p class="hero-description">{{ place.description }}</p>
+          </div>
+        </header>
+
+        <section class="activities-section" aria-labelledby="activities-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Make the most of your visit</p>
+              <h2 id="activities-title">Things to explore</h2>
+            </div>
+            <span class="activity-count" aria-live="polite">
+              {{ activities().length }} {{ activities().length === 1 ? 'activity' : 'activities' }}
+            </span>
+          </div>
+
+          @if (isLoadingActivities()) {
+            <p class="page-state" role="status">Loading activities...</p>
+          } @else if (activitiesFailed()) {
+            <div class="page-state page-error" role="alert">
+              <p>Activities could not be loaded. Check your connection and try again.</p>
+              <button class="retry-button" type="button" (click)="retryActivities()">Try again</button>
+            </div>
+          } @else if (activities().length === 0) {
+            <p class="page-state" role="status">No activities have been added for this destination yet.</p>
+          } @else {
+            <div class="activity-grid">
+              @for (activity of activities(); track activity.id) {
+                <article class="activity-card">
+                  <span class="activity-mark" aria-hidden="true">✦</span>
+                  <h3>{{ activity.name }}</h3>
+                  <p>{{ activity.description }}</p>
+                </article>
+              }
+            </div>
+          }
+        </section>
+      </article>
+    }
+  </div>
+</main>

@@ -1,499 +1,299 @@
-import { CurrencyPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { Activity, Destination, DestinationService } from '../destination.service';
-import { Expense, ExpenseInput, ExpenseService } from './expense.service';
+import { Expense, ExpenseService } from './expense.service';
 import { ItineraryItem, ItineraryItemInput, ItineraryService } from './itinerary.service';
 import { Trip, TripService } from './trip.service';
+import { forkJoin } from 'rxjs';
+
+type ItineraryItemType = 'destination' | 'activity';
 
 @Component({
   selector: 'app-trip-detail-page',
   standalone: true,
-  imports: [CurrencyPipe, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './trip-detail.page.html',
   styleUrl: './trip-detail.page.css',
 })
 export class TripDetailPage {
-  private loadGeneration = 0;
-  private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
   private readonly tripService = inject(TripService);
+  private readonly destinationService = inject(DestinationService);
   private readonly itineraryService = inject(ItineraryService);
   private readonly expenseService = inject(ExpenseService);
-  private readonly destinationService = inject(DestinationService);
 
   readonly trip = signal<Trip | null>(null);
   readonly itinerary = signal<ItineraryItem[]>([]);
-  readonly expenses = signal<Expense[]>([]);
+  readonly itineraryActivities = signal<Activity[]>([]);
   readonly destinations = signal<Destination[]>([]);
-  readonly activityNames = signal<Record<number, string>>({});
+  readonly availableActivities = signal<Activity[]>([]);
+  readonly expenses = signal<Expense[]>([]);
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly itineraryLoading = signal(false);
-  readonly itineraryError = signal<string | null>(null);
-  readonly destinationsError = signal<string | null>(null);
-  readonly activityOptionsLoading = signal(false);
-  readonly activityOptionsError = signal<string | null>(null);
-  readonly activityNamesLoading = signal(false);
-  readonly activityNamesError = signal<string | null>(null);
-  readonly expensesLoading = signal(false);
-  readonly expensesError = signal<string | null>(null);
-  readonly itineraryOperationError = signal<string | null>(null);
-  readonly expenseOperationError = signal<string | null>(null);
-  readonly isSavingItinerary = signal(false);
+  readonly isLoadingItinerary = signal(true);
+  readonly itineraryLoadFailed = signal(false);
+  readonly isLoadingDestinations = signal(false);
+  readonly isLoadingActivities = signal(false);
+  readonly itineraryOptionsFailed = signal(false);
+  readonly itineraryOperationFailed = signal(false);
+  readonly isAddingItineraryItem = signal(false);
+  readonly itineraryItemType = signal<ItineraryItemType>('destination');
+  readonly selectedDestinationId = signal<number | null>(null);
+  readonly selectedActivityId = signal<number | null>(null);
+  readonly isLoadingExpenses = signal(true);
+  readonly expenseLoadFailed = signal(false);
+  readonly expenseOperationFailed = signal(false);
   readonly isSavingExpense = signal(false);
   readonly editingExpenseId = signal<number | null>(null);
-
-  readonly selectedDestinationId = signal<number | null>(null);
-  readonly availableActivities = signal<Activity[]>([]);
-  private readonly currentTripId = signal<number | null>(null);
-  readonly totalExpenses = computed(() =>
-    this.expenses().reduce((total, expense) => total + expense.amount, 0),
-  );
-
-  readonly itineraryForm = this.formBuilder.nonNullable.group({
-    destinationId: ['', Validators.required],
-    activityId: [''],
-  });
 
   readonly expenseForm = this.formBuilder.nonNullable.group({
     description: ['', [Validators.required, Validators.maxLength(200)]],
     amount: [0, [Validators.required, Validators.min(0.01)]],
-    expenseDate: [this.today()],
+    expenseDate: [''],
   });
 
+  readonly tripSummary = computed(() => {
+    const currentTrip = this.trip();
+    if (!currentTrip) {
+      return 'Trip details';
+    }
+
+    const start = currentTrip.startDate ?? 'No start date';
+    const end = currentTrip.endDate ?? 'No end date';
+    return `${currentTrip.name} · ${start} → ${end}`;
+  });
+
+  readonly tripId = Number(this.route.snapshot.paramMap.get('id'));
+
+  itineraryItemLabel(item: ItineraryItem): string {
+    if (item.destinationId !== null) {
+      const destination = this.destinations().find((entry) => entry.id === item.destinationId);
+      return destination ? `Destination: ${destination.name}` : `Destination #${item.destinationId}`;
+    }
+
+    if (item.activityId !== null) {
+      const activity = this.itineraryActivities().find((entry) => entry.id === item.activityId);
+      return activity ? `Activity: ${activity.name}` : `Activity #${item.activityId}`;
+    }
+
+    return 'Unknown itinerary item';
+  }
+
   constructor() {
-    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const tripId = Number(params.get('id'));
-      if (!Number.isSafeInteger(tripId) || tripId < 1) {
-        this.currentTripId.set(null);
-        this.trip.set(null);
+    this.loadTrip();
+  }
+
+  private loadTrip(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.tripService.getTrip(this.tripId).subscribe({
+      next: (trip) => {
+        this.trip.set(trip);
         this.isLoading.set(false);
-        this.error.set('This trip link is not valid.');
-        return;
-      }
-      this.currentTripId.set(tripId);
-      this.loadTrip(tripId);
+        this.loadRelatedData(trip.id);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.error.set('Trip could not be loaded.');
+      },
     });
   }
 
-  destinationChanged(event: Event): void {
+  private loadRelatedData(tripId: number): void {
+    this.loadDestinations();
+
+    this.isLoadingItinerary.set(true);
+    this.itineraryLoadFailed.set(false);
+    this.itineraryService.getItems(tripId).subscribe({
+      next: (items) => {
+        this.itinerary.set(items);
+        this.isLoadingItinerary.set(false);
+      },
+      error: () => {
+        this.itineraryLoadFailed.set(true);
+        this.isLoadingItinerary.set(false);
+      },
+    });
+
+    this.isLoadingExpenses.set(true);
+    this.expenseLoadFailed.set(false);
+    this.expenseService.getExpenses(tripId).subscribe({
+      next: (items) => {
+        this.expenses.set(items);
+        this.isLoadingExpenses.set(false);
+      },
+      error: () => {
+        this.expenseLoadFailed.set(true);
+        this.isLoadingExpenses.set(false);
+      },
+    });
+  }
+
+  setItineraryItemType(type: ItineraryItemType): void {
+    this.itineraryItemType.set(type);
+    this.selectedActivityId.set(null);
+    this.availableActivities.set([]);
+
+    if (type === 'activity' && this.selectedDestinationId() !== null) {
+      this.loadActivities(this.selectedDestinationId()!);
+    }
+  }
+
+  selectDestination(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     const destinationId = value ? Number(value) : null;
     this.selectedDestinationId.set(destinationId);
-    this.itineraryForm.controls.activityId.setValue('');
+    this.selectedActivityId.set(null);
     this.availableActivities.set([]);
-    this.activityOptionsError.set(null);
 
-    if (destinationId === null) {
-      this.activityOptionsLoading.set(false);
-      return;
-    }
-
-    this.loadActivities(destinationId);
-  }
-
-  retryActivityOptions(): void {
-    const destinationId = this.selectedDestinationId();
-    if (destinationId !== null) {
+    if (destinationId !== null && this.itineraryItemType() === 'activity') {
       this.loadActivities(destinationId);
     }
   }
 
-  private loadActivities(destinationId: number): void {
-    this.activityOptionsLoading.set(true);
-    this.destinationService.getActivities(destinationId).subscribe({
-      next: (activities) => {
-        if (this.selectedDestinationId() !== destinationId) {
-          return;
-        }
-        this.availableActivities.set(activities);
-        this.activityOptionsLoading.set(false);
-      },
-      error: () => {
-        if (this.selectedDestinationId() !== destinationId) {
-          return;
-        }
-        this.activityOptionsError.set('Activities could not be loaded.');
-        this.activityOptionsLoading.set(false);
-      },
-    });
+  selectActivity(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.selectedActivityId.set(value ? Number(value) : null);
   }
 
   addItineraryItem(): void {
-    this.itineraryOperationError.set(null);
-    if (this.itineraryForm.invalid || this.isSavingItinerary()) {
-      this.itineraryForm.markAllAsTouched();
+    const destinationId = this.itineraryItemType() === 'destination'
+      ? this.selectedDestinationId()
+      : null;
+    const activityId = this.itineraryItemType() === 'activity'
+      ? this.selectedActivityId()
+      : null;
+
+    if ((destinationId === null) === (activityId === null)) {
       return;
     }
 
-    const destinationId = Number(this.itineraryForm.controls.destinationId.value);
-    const activityId = this.itineraryForm.controls.activityId.value;
-    const request: ItineraryItemInput = activityId
-      ? { destinationId: null, activityId: Number(activityId), sortOrder: this.nextSortOrder() }
-      : { destinationId, activityId: null, sortOrder: this.nextSortOrder() };
-    const tripId = this.tripId();
+    const sortOrder = this.itinerary().reduce(
+      (maximum, item) => Math.max(maximum, item.sortOrder),
+      -1,
+    ) + 1;
+    const request: ItineraryItemInput = { destinationId, activityId, sortOrder };
 
-    this.isSavingItinerary.set(true);
-    this.itineraryService.addItem(tripId, request).subscribe({
+    this.itineraryOperationFailed.set(false);
+    this.isAddingItineraryItem.set(true);
+    this.itineraryService.addItem(this.tripId, request).subscribe({
       next: (item) => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.itinerary.update((items) => [...items, item].sort((a, b) => a.sortOrder - b.sortOrder));
-        this.itineraryForm.reset({ destinationId: '', activityId: '' });
-        this.selectedDestinationId.set(null);
-        this.availableActivities.set([]);
-        this.activityOptionsLoading.set(false);
-        this.activityOptionsError.set(null);
-        this.isSavingItinerary.set(false);
+        this.itinerary.update((current) => [...current, item].sort((a, b) => a.sortOrder - b.sortOrder));
+        this.selectedActivityId.set(null);
+        this.isAddingItineraryItem.set(false);
       },
       error: () => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.itineraryOperationError.set('The itinerary item could not be added. Try again.');
-        this.isSavingItinerary.set(false);
+        this.itineraryOperationFailed.set(true);
+        this.isAddingItineraryItem.set(false);
       },
     });
   }
 
-  moveItineraryItem(item: ItineraryItem, direction: -1 | 1): void {
-    this.itineraryOperationError.set(null);
-    const orderedItems = [...this.itinerary()].sort((a, b) => a.sortOrder - b.sortOrder);
-    const currentIndex = orderedItems.findIndex((current) => current.id === item.id);
-    const adjacentItem = orderedItems[currentIndex + direction];
-    if (!adjacentItem || this.isSavingItinerary()) {
-      return;
-    }
-
-    const tripId = this.tripId();
-    this.isSavingItinerary.set(true);
-    forkJoin([
-      this.itineraryService.updateSortOrder(tripId, item.id, adjacentItem.sortOrder),
-      this.itineraryService.updateSortOrder(tripId, adjacentItem.id, item.sortOrder),
-    ]).subscribe({
-      next: ([updatedItem, updatedAdjacent]) => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        const updatedById = new Map([
-          [updatedItem.id, updatedItem],
-          [updatedAdjacent.id, updatedAdjacent],
-        ]);
-        this.itinerary.update((items) =>
-          items.map((current) => updatedById.get(current.id) ?? current)
-            .sort((a, b) => a.sortOrder - b.sortOrder),
-        );
-        this.isSavingItinerary.set(false);
-      },
-      error: () => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.itineraryOperationError.set('The itinerary order could not be changed. Reload the page and try again.');
-        this.isSavingItinerary.set(false);
-        this.loadItinerary();
-      },
+  removeItineraryItem(item: ItineraryItem): void {
+    this.itineraryOperationFailed.set(false);
+    this.itineraryService.deleteItem(this.tripId, item.id).subscribe({
+      next: () => this.itinerary.update((current) => current.filter((entry) => entry.id !== item.id)),
+      error: () => this.itineraryOperationFailed.set(true),
     });
-  }
-
-  deleteItineraryItem(item: ItineraryItem): void {
-    this.itineraryOperationError.set(null);
-    if (this.isSavingItinerary() || !globalThis.confirm(`Remove "${this.itineraryItemName(item)}" from the itinerary?`)) {
-      return;
-    }
-
-    const tripId = this.tripId();
-    this.isSavingItinerary.set(true);
-    this.itineraryService.deleteItem(tripId, item.id).subscribe({
-      next: () => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.itinerary.update((items) => items.filter((current) => current.id !== item.id));
-        this.isSavingItinerary.set(false);
-      },
-      error: () => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.itineraryOperationError.set('The itinerary item could not be removed. Try again.');
-        this.isSavingItinerary.set(false);
-      },
-    });
-  }
-
-  itineraryItemName(item: ItineraryItem): string {
-    if (item.destinationId !== null) {
-      return this.destinations().find((destination) => destination.id === item.destinationId)?.name
-        ?? `Destination #${item.destinationId}`;
-    }
-    if (item.activityId !== null) {
-      return this.activityNames()[item.activityId] ?? `Activity #${item.activityId}`;
-    }
-    return 'Unknown itinerary item';
   }
 
   saveExpense(): void {
-    this.expenseOperationError.set(null);
-    if (this.expenseForm.invalid || this.isSavingExpense()) {
+    this.expenseOperationFailed.set(false);
+    if (this.expenseForm.invalid || this.trip() === null) {
       this.expenseForm.markAllAsTouched();
       return;
     }
 
     const values = this.expenseForm.getRawValue();
-    const request: ExpenseInput = {
+    const request = {
       description: values.description.trim(),
       amount: values.amount,
       expenseDate: values.expenseDate || null,
     };
     const editingId = this.editingExpenseId();
-    const tripId = this.tripId();
     const operation = editingId === null
-      ? this.expenseService.addExpense(tripId, request)
-      : this.expenseService.updateExpense(tripId, editingId, request);
+      ? this.expenseService.addExpense(this.tripId, request)
+      : this.expenseService.updateExpense(this.tripId, editingId, request);
 
     this.isSavingExpense.set(true);
     operation.subscribe({
       next: (expense) => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.expenses.update((items) => (editingId === null
-          ? [expense, ...items]
-          : items.map((current) => current.id === expense.id ? expense : current))
-          .sort((a, b) => b.expenseDate.localeCompare(a.expenseDate)));
+        this.expenses.update((current) => editingId === null
+          ? [expense, ...current]
+          : current.map((item) => item.id === expense.id ? expense : item));
         this.resetExpenseForm();
         this.isSavingExpense.set(false);
       },
       error: () => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.expenseOperationError.set('The expense could not be saved. Check the details and try again.');
+        this.expenseOperationFailed.set(true);
         this.isSavingExpense.set(false);
       },
     });
   }
 
   editExpense(expense: Expense): void {
-    if (this.isSavingExpense()) {
-      return;
-    }
     this.editingExpenseId.set(expense.id);
     this.expenseForm.setValue({
       description: expense.description,
       amount: expense.amount,
       expenseDate: expense.expenseDate,
     });
-    this.expenseOperationError.set(null);
+    this.expenseOperationFailed.set(false);
   }
 
   deleteExpense(expense: Expense): void {
-    this.expenseOperationError.set(null);
-    if (this.isSavingExpense() || !globalThis.confirm(`Delete the expense "${expense.description}"?`)) {
+    if (!globalThis.confirm(`Delete the expense "${expense.description}"?`)) {
       return;
     }
 
-    const tripId = this.tripId();
-    this.isSavingExpense.set(true);
-    this.expenseService.deleteExpense(tripId, expense.id).subscribe({
-      next: () => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.expenses.update((items) => items.filter((current) => current.id !== expense.id));
-        if (this.editingExpenseId() === expense.id) {
-          this.resetExpenseForm();
-        }
-        this.isSavingExpense.set(false);
-      },
-      error: () => {
-        if (tripId !== this.tripId()) {
-          return;
-        }
-        this.expenseOperationError.set('The expense could not be deleted. Try again.');
-        this.isSavingExpense.set(false);
-      },
+    this.expenseService.deleteExpense(this.tripId, expense.id).subscribe({
+      next: () => this.expenses.update((current) => current.filter((item) => item.id !== expense.id)),
+      error: () => this.expenseOperationFailed.set(true),
     });
   }
 
   resetExpenseForm(): void {
     this.editingExpenseId.set(null);
-    this.expenseOperationError.set(null);
-    this.expenseForm.reset({
-      description: '',
-      amount: 0,
-      expenseDate: this.today(),
-    });
+    this.expenseForm.reset({ description: '', amount: 0, expenseDate: '' });
   }
 
-  retryItinerary(): void {
-    this.loadItinerary();
-  }
-
-  retryExpenses(): void {
-    this.loadExpenses();
-  }
-
-  retryDestinations(): void {
-    this.loadDestinations();
-  }
-
-  private loadTrip(tripId: number): void {
-    const generation = ++this.loadGeneration;
-    this.trip.set(null);
-    this.itinerary.set([]);
-    this.expenses.set([]);
-    this.destinations.set([]);
-    this.activityNames.set({});
-    this.itineraryError.set(null);
-    this.expensesError.set(null);
-    this.destinationsError.set(null);
-    this.activityNamesError.set(null);
-    this.activityNamesLoading.set(false);
-    this.activityOptionsLoading.set(false);
-    this.activityOptionsError.set(null);
-    this.itineraryLoading.set(false);
-    this.expensesLoading.set(false);
-    this.itineraryOperationError.set(null);
-    this.expenseOperationError.set(null);
-    this.isSavingItinerary.set(false);
-    this.isSavingExpense.set(false);
-    this.editingExpenseId.set(null);
-    this.selectedDestinationId.set(null);
-    this.availableActivities.set([]);
-    this.itineraryForm.reset({ destinationId: '', activityId: '' });
-    this.resetExpenseForm();
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    this.tripService.getTrip(tripId).subscribe({
-      next: (trip) => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
-        this.trip.set(trip);
-        this.isLoading.set(false);
-        this.loadItinerary(tripId, generation);
-        this.loadExpenses(tripId, generation);
-        this.loadDestinations(generation);
-      },
-      error: () => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
-        this.isLoading.set(false);
-        this.error.set('Trip could not be loaded. Check that the API and database are available.');
-      },
-    });
-  }
-
-  private loadItinerary(tripId = this.tripId(), generation = this.loadGeneration): void {
-    this.itineraryLoading.set(true);
-    this.itineraryError.set(null);
-    this.itineraryService.getItems(tripId).subscribe({
-      next: (items) => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
-        this.itinerary.set(items);
-        this.itineraryLoading.set(false);
-      },
-      error: () => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
-        this.itineraryError.set('The itinerary could not be loaded.');
-        this.itineraryLoading.set(false);
-      },
-    });
-  }
-
-  private loadExpenses(tripId = this.tripId(), generation = this.loadGeneration): void {
-    this.expensesLoading.set(true);
-    this.expensesError.set(null);
-    this.expenseService.getExpenses(tripId).subscribe({
-      next: (items) => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
-        this.expenses.set(items);
-        this.expensesLoading.set(false);
-      },
-      error: () => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
-        this.expensesError.set('Expenses could not be loaded.');
-        this.expensesLoading.set(false);
-      },
-    });
-  }
-
-  private loadDestinations(generation = this.loadGeneration): void {
-    this.destinationsError.set(null);
-    this.activityNamesError.set(null);
+  private loadDestinations(): void {
+    this.isLoadingDestinations.set(true);
+    this.itineraryOptionsFailed.set(false);
     this.destinationService.getDestinations().subscribe({
       next: (destinations) => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
         this.destinations.set(destinations);
-        this.loadActivityNames(destinations, generation);
+        this.isLoadingDestinations.set(false);
+        if (destinations.length > 0) {
+          forkJoin(destinations.map((destination) => this.destinationService.getActivities(destination.id)))
+            .subscribe({
+              next: (activityGroups) => this.itineraryActivities.set(activityGroups.flat()),
+              error: () => this.itineraryActivities.set([]),
+            });
+        }
       },
       error: () => {
-        if (generation === this.loadGeneration) {
-          this.destinationsError.set('Destinations could not be loaded. Itinerary names may be unavailable.');
-        }
+        this.itineraryOptionsFailed.set(true);
+        this.isLoadingDestinations.set(false);
       },
     });
   }
 
-  private loadActivityNames(destinations: Destination[], generation: number): void {
-    if (destinations.length === 0) {
-      this.activityNames.set({});
-      return;
-    }
-
-    this.activityNamesLoading.set(true);
-    forkJoin(destinations.map((destination) =>
-      this.destinationService.getActivities(destination.id),
-    )).subscribe({
-      next: (activityGroups) => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
-        this.activityNames.set(Object.fromEntries(
-          activityGroups.flat().map((activity) => [activity.id, activity.name]),
-        ));
-        this.activityNamesLoading.set(false);
+  private loadActivities(destinationId: number): void {
+    this.isLoadingActivities.set(true);
+    this.itineraryOptionsFailed.set(false);
+    this.destinationService.getActivities(destinationId).subscribe({
+      next: (activities) => {
+        this.availableActivities.set(activities);
+        this.isLoadingActivities.set(false);
       },
       error: () => {
-        if (generation !== this.loadGeneration) {
-          return;
-        }
-        this.activityNamesError.set('Activity names could not be loaded.');
-        this.activityNamesLoading.set(false);
+        this.itineraryOptionsFailed.set(true);
+        this.isLoadingActivities.set(false);
       },
     });
-  }
-
-  private tripId(): number {
-    return this.currentTripId() ?? Number(this.route.snapshot.paramMap.get('id'));
-  }
-
-  private nextSortOrder(): number {
-    return this.itinerary().reduce((maximum, item) => Math.max(maximum, item.sortOrder), -1) + 1;
-  }
-
-  private today(): string {
-    const date = new Date();
-    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
-    return localDate.toISOString().slice(0, 10);
   }
 }

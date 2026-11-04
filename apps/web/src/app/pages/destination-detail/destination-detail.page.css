@@ -1,0 +1,197 @@
+.destination-page {
+  min-height: 70vh;
+  padding: 2.5rem 0 5rem;
+  background: #fffefa;
+}
+
+.destination-content {
+  max-width: 1180px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #174f49;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  color: #c95f49;
+  text-decoration: underline;
+}
+
+.page-state {
+  margin: 2.5rem 0 0;
+  padding: 1.5rem;
+  border: 1px dashed #b9ccc1;
+  border-radius: 8px;
+  color: #526963;
+  text-align: center;
+}
+
+.page-error h1 {
+  margin: 0 0 0.6rem;
+  color: #173c3a;
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.page-error p {
+  margin: 0 0 1rem;
+}
+
+.retry-button {
+  min-height: 42px;
+  padding: 0.55rem 1rem;
+  border: 0;
+  border-radius: 6px;
+  background: #174f49;
+  color: #fffefa;
+  font-weight: 650;
+}
+
+.retry-button:hover,
+.retry-button:focus-visible {
+  background: #103e39;
+}
+
+.destination-hero {
+  position: relative;
+  min-height: 360px;
+  margin-top: 1.5rem;
+  overflow: hidden;
+  display: flex;
+  align-items: end;
+  border-radius: 12px;
+  background: #dce9e2;
+}
+
+.hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-placeholder {
+  background: linear-gradient(120deg, #dceee5, #f7e3d8);
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 2rem;
+  background: linear-gradient(transparent, rgba(17, 47, 43, 0.88));
+  color: #fffefa;
+}
+
+.eyebrow {
+  margin: 0 0 0.55rem;
+  color: #b7d4c7;
+  font-size: 0.76rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 520;
+  line-height: 1.05;
+}
+
+.hero-description {
+  max-width: 740px;
+  margin: 0.8rem 0 0;
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+
+.activities-section {
+  padding-top: 3.5rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+.section-heading .eyebrow {
+  color: #bd634d;
+}
+
+.section-heading h2 {
+  margin: 0;
+  color: #173c3a;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.9rem, 3.4vw, 2.65rem);
+  font-weight: 520;
+}
+
+.activity-count {
+  padding-bottom: 0.35rem;
+  color: #71807c;
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 1rem;
+}
+
+.activity-card {
+  min-height: 160px;
+  padding: 1.25rem;
+  border: 1px solid #e3e7e0;
+  border-radius: 8px;
+  background: #fffefa;
+}
+
+.activity-mark {
+  color: #d56750;
+  font-size: 1.1rem;
+}
+
+.activity-card h3 {
+  margin: 0.65rem 0 0.45rem;
+  color: #183b38;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 550;
+}
+
+.activity-card p {
+  margin: 0;
+  color: #65736e;
+  line-height: 1.55;
+}
+
+@media (max-width: 575.98px) {
+  .destination-page {
+    padding-top: 1.5rem;
+  }
+
+  .destination-hero {
+    min-height: 320px;
+  }
+
+  .hero-copy {
+    padding: 1.35rem;
+  }
+
+  .section-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+}

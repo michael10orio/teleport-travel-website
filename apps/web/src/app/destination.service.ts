@@ -27,6 +27,10 @@ export class DestinationService {
     return this.http.get<Destination[]>(`${environment.apiBaseUrl}/destinations`);
   }
 
+  getDestination(id: number): Observable<Destination> {
+    return this.http.get<Destination>(`${environment.apiBaseUrl}/destinations/${id}`);
+  }
+
   getActivities(destinationId: number): Observable<Activity[]> {
     return this.http.get<Activity[]>(
       `${environment.apiBaseUrl}/destinations/${destinationId}/activities`,

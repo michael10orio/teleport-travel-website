@@ -32,7 +32,7 @@ This PoC does not include flight booking, hotel booking, payment processing, rea
 - Bootstrap
 - .NET Minimal API
 - PostgreSQL
-- Podman (local amd64 runtime verified); Docker Compose (application containers and CI)
+- Podman Compose (local deployment); Docker Compose (GitHub Actions CI)
 - GitHub Actions (build, integration checks, scheduled ETL, and short-lived ETL artifact)
 - AWS PostgreSQL and Azure Blob Storage/ADLS (planned, not provisioned)
 
@@ -63,7 +63,7 @@ The detailed operational/analytical design and its proposed, undeployed dimensio
 
 - Node.js 20 and npm
 - .NET 10 SDK
-- PostgreSQL 18 (or the Docker Compose PostgreSQL 17 service)
+- Podman 5.5.2 or Docker with Compose
 - `psql` client for schema, query, and ETL commands
 
 ### Configure the local database and API
@@ -112,44 +112,29 @@ psql -h localhost -p 5432 -d teleport_dev -v ON_ERROR_STOP=1 -P pager=off -f dat
 psql -h localhost -p 5432 -d teleport_dev -v ON_ERROR_STOP=1 -P pager=off -f database/analysis/week-8-reporting-demo.sql
 ```
 
-### Run with Docker Compose
+### Run the container stack
 
-Create a local `.env` from `.env.example`, replace its placeholder with a unique local-only password, then start the stack:
+Copy the example file, replace its placeholder with a unique local-only password, then start the stack:
 
 ```sh
-docker compose up --detach --build
+cp .env.example .env
+# Edit .env and set POSTGRES_PASSWORD to a local-only value.
+podman compose up --detach --build
 ```
 
-The Compose stack binds its ports to localhost. Stop containers without deleting the database volume using `docker compose down`; removing volumes destroys their stored database data.
+Use `docker compose` instead if Docker Desktop is running. The app is at `http://localhost:4200`, the API at `http://localhost:5079`, and PostgreSQL at `localhost:55432`. Stop the stack with `podman compose down`; this keeps the database volume. Add `--volumes` only when intentionally deleting the local data.
 
 ## Results and Limitations
 
 - Reviewed demonstration data: 2 destinations and 5 activities. The ETL transform validates 7 raw rows and is idempotent.
 - Current operational database: 0 trips, 0 itinerary items, and 0 expenses. Therefore no real spending analysis is possible; expense `SUM`/`AVG` are `NULL`, not measured zero spending.
 - The business interpretation is limited to curated activity coverage (Lisbon 3, Porto 2); this tiny sample does not establish popularity, quality, cost, or traveler preference.
-- The GitHub Actions workflow builds the app/API, starts Docker Compose with an ephemeral password, checks service readiness, runs the ETL into a separate database, uploads cleaned data as a 7-day artifact, runs CRUD smoke tests, and cleans up. Latest successful run: [41908117744](https://github.com/michael10orio/teleport-travel-website/actions/runs/41908117744).
+- The GitHub Actions workflow builds the app/API, starts Docker Compose with an ephemeral password, checks readiness, runs the ETL in an isolated database, uploads a 7-day artifact, runs CRUD smoke tests, and cleans up. Latest successful pushed run: [41909631564](https://github.com/michael10orio/teleport-travel-website/actions/runs/41909631564) for commit `4938d20`; the current local changes still need to be pushed and checked by CI.
+- The local Podman Compose deployment has been built and tested. Web, API liveness, database readiness, and destinations returned HTTP 200; the API CRUD smoke test passed and removed its temporary records.
 - The final presentation/demo sequence is outlined in [docs/final-demo-v0.md](docs/final-demo-v0.md).
-- Azure CLI sign-in succeeded, but Azure management calls return `SubscriptionNotFound`; AWS and Azure resources are not provisioned. No cloud monitoring service is deployed.
+- Sprint and Week 6–8 screenshots are grouped and indexed in [docs/evidence/README.md](docs/evidence/README.md); they still need manual Omnivox upload.
+- The AWS account is suspended. Azure sign-in works, but Azure management returns `SubscriptionNotFound`; no cloud database, storage, or monitoring has been deployed. Confirm an acceptable alternative with the instructor.
 - The API has no authentication/authorization and is not production-ready. See [docs/security-and-secrets-v0.md](docs/security-and-secrets-v0.md) and [docs/monitoring-v0.md](docs/monitoring-v0.md) for security and monitoring scope.
-
-## Implementation Status
-
-- Angular/Nx frontend supports destination discovery/details, trip planning, itinerary and expense management, and dashboard views.
-- The .NET 10 Minimal API provides OpenAPI, destination/activity reads, and trip, itinerary, and expense CRUD. Local API/database smoke tests passed and removed their temporary records.
-- PostgreSQL has the five-table schema and a small sourced dataset: 2 destinations and 5 activities. No trips, itinerary items, or expenses remain.
-- Week 6 ETL is verified and idempotent: 7 raw rows become 2 destinations and 5 activities in `teleport_etl_demo`.
-- Week 7 has ten analysis/data-quality queries and a results interpretation; Week 8 has two reporting views, two functions, and an OLTP/OLAP design. No warehouse is deployed.
-- GitHub Actions run `41908117744` passed frontend/API builds, Compose build/start, API/database/web readiness, scheduled ETL, 7-day cleaned-data artifact upload, CRUD smoke tests, and cleanup.
-- Podman 5.5.2 is installed and its amd64 `hello-world` test passed; the Teleport stack itself is still run with Docker Compose. The Angular build succeeds with non-fatal bundle/style budget warnings.
-
-## Remaining Requirements and Limitations
-
-- AWS PostgreSQL and Azure Blob/ADLS are not provisioned. Azure CLI sign-in succeeded, but Azure management calls return `SubscriptionNotFound` because the ID supplied was the Vanier directory ID, not a subscription ID. No cloud resources or uploads were created.
-- The API has no authentication/authorization and no cloud secret manager is deployed; this is a local PoC, not production-ready. See [docs/security-and-secrets-v0.md](docs/security-and-secrets-v0.md).
-- Azure Monitor, Application Insights, Log Analytics, CloudWatch, persistent metrics, and alerting are not configured. Local health endpoints, Docker logs, and GitHub Actions history are documented in [docs/monitoring-v0.md](docs/monitoring-v0.md).
-- The small dataset supports only limited activity-coverage observations. With zero trip/expense records, no spending conclusion is supported.
-- Trello updates, screenshot review, and Omnivox submission remain project-owner tasks; screenshot files are not treated as submitted evidence.
-- Week 6–8, CI, and monitoring milestones are pushed. Other frontend, CSV, API-plan, and Azure-helper edits remain uncommitted and need review before final repository submission.
 
 The project is intentionally a small PoC. Data and results are described only where they have been locally verified; proposed cloud and warehouse layers are labeled as plans.
 

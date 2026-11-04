@@ -1,5 +1,5 @@
 <main class="container-xxl trip-detail-page">
-  <nav class="mb-4" aria-label="Breadcrumb">
+  <nav class="mb-4">
     <a class="btn btn-link px-0" routerLink="/trips">← Back to trips</a>
   </nav>
 
@@ -8,242 +8,175 @@
   } @else if (error()) {
     <div class="alert alert-danger" role="alert">{{ error() }}</div>
   } @else if (trip(); as currentTrip) {
-    <header class="trip-heading">
+    <header class="mb-4">
       <p class="eyebrow">Trip overview</p>
       <h1>{{ currentTrip.name }}</h1>
-      <p>
-        {{ currentTrip.startDate || 'Start date not set' }}
-        @if (currentTrip.endDate) { <span> to {{ currentTrip.endDate }}</span> }
-      </p>
+      <p>{{ tripSummary() }}</p>
     </header>
 
-    <div class="row g-4 align-items-start">
-      <section class="col-12 col-lg-7" aria-labelledby="itinerary-title">
-        <div class="detail-card">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Plan your days</p>
-              <h2 id="itinerary-title">Itinerary</h2>
+    <div class="row g-4">
+      <section class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline gap-2 mb-3">
+              <h2 class="h5 mb-0">Itinerary</h2>
+              <span class="text-muted small">{{ itinerary().length }} items</span>
             </div>
-            @if (!itineraryLoading() && !itineraryError()) {
-              <span class="item-count">{{ itinerary().length }} {{ itinerary().length === 1 ? 'item' : 'items' }}</span>
-            }
-          </div>
-
-          @if (destinationsError()) {
-            <div class="inline-error" role="alert">
-              <span>{{ destinationsError() }}</span>
-              <button class="btn text-action" type="button" (click)="retryDestinations()">Retry</button>
-            </div>
-          }
-          @if (activityNamesError()) {
-            <div class="inline-error" role="alert">
-              <span>{{ activityNamesError() }}</span>
-              <button class="btn text-action" type="button" (click)="retryDestinations()">Retry</button>
-            </div>
-          }
-          @if (activityOptionsError()) {
-            <div class="inline-error" role="alert">
-              <span>{{ activityOptionsError() }}</span>
-              <button class="btn text-action" type="button" (click)="retryActivityOptions()">Retry</button>
-            </div>
-          }
-          @if (itineraryOperationError()) {
-            <p class="inline-error" role="alert">{{ itineraryOperationError() }}</p>
-          }
-
-          <form class="entry-form" [formGroup]="itineraryForm" (ngSubmit)="addItineraryItem()">
-            <label class="form-label" for="itinerary-destination">Destination</label>
-            <select
-              id="itinerary-destination"
-              class="form-select"
-              formControlName="destinationId"
-              (change)="destinationChanged($event)"
-              required
-            >
-              <option value="">Choose a destination</option>
-              @for (destination of destinations(); track destination.id) {
-                <option [value]="destination.id">{{ destination.name }} · {{ destination.region }}</option>
-              }
-            </select>
-
-            @if (selectedDestinationId() !== null) {
-              <label class="form-label mt-3" for="itinerary-activity">Activity (optional)</label>
-              <select id="itinerary-activity" class="form-select" formControlName="activityId">
-                <option value="">Add the destination itself</option>
-                @for (activity of availableActivities(); track activity.id) {
-                  <option [value]="activity.id">{{ activity.name }}</option>
+            @if (isLoadingItinerary()) {
+              <p class="text-muted mb-0" role="status">Loading itinerary...</p>
+            } @else if (itineraryLoadFailed()) {
+              <p class="text-danger mb-0" role="alert">Itinerary could not be loaded.</p>
+            } @else if (itinerary().length > 0) {
+              <ul class="list-group list-group-flush">
+                @for (item of itinerary(); track item.id) {
+                  <li class="list-group-item">
+                    <span>
+                      {{ itineraryItemLabel(item) }} · order {{ item.sortOrder }}
+                    </span>
+                    <button class="btn btn-sm text-action delete-action" type="button" (click)="removeItineraryItem(item)">Remove</button>
+                  </li>
                 }
-              </select>
-              @if (activityOptionsLoading()) {
-                <p class="help-text" role="status">Loading activities...</p>
-              } @else if (!activityOptionsError() && availableActivities().length === 0) {
-                <p class="help-text">No activities are listed for this destination.</p>
-              }
+              </ul>
             }
 
-            <div class="form-actions">
-              <button
-                class="btn primary-action"
-                type="submit"
-                [disabled]="isSavingItinerary() || destinations().length === 0"
-              >
-                {{ isSavingItinerary() ? 'Saving...' : 'Add to itinerary' }}
-              </button>
-              @if (destinations().length === 0 && !destinationsError()) {
-                <span class="help-text">No destinations are available to add.</span>
-              }
-            </div>
-          </form>
-
-          <div class="entry-list" aria-live="polite">
-            @if (itineraryLoading()) {
-              <p class="state-message" role="status">Loading itinerary...</p>
-            } @else if (itineraryError()) {
-              <div class="inline-error" role="alert">
-                <span>{{ itineraryError() }}</span>
-                <button class="btn text-action" type="button" (click)="retryItinerary()">Retry</button>
-              </div>
-            } @else if (itinerary().length === 0) {
-              <p class="empty-message">No itinerary items yet. Add a destination or an activity above.</p>
+            @if (isLoadingDestinations()) {
+              <p class="text-muted mt-3" role="status">Loading destinations...</p>
+            } @else if (itineraryOptionsFailed()) {
+              <p class="text-danger mt-3" role="alert">Itinerary options could not be loaded.</p>
+            } @else if (destinations().length === 0) {
+              <p class="text-muted mt-3 mb-0">Add reviewed destinations before planning an itinerary.</p>
             } @else {
-              @for (item of itinerary(); track item.id; let index = $index) {
-                <article class="itinerary-item">
-                  <span class="item-number">{{ index + 1 }}</span>
-                  <div class="item-copy">
-                    <h3>{{ itineraryItemName(item) }}</h3>
-                    @if (item.activityId !== null && activityNamesLoading()) {
-                      <p>Loading activity details...</p>
-                    }
-                  </div>
-                  <div class="item-actions" [attr.aria-label]="'Actions for ' + itineraryItemName(item)">
-                    <button
-                      class="btn icon-action"
-                      type="button"
-                      [disabled]="index === 0 || isSavingItinerary()"
-                      [attr.aria-label]="'Move ' + itineraryItemName(item) + ' up'"
-                      (click)="moveItineraryItem(item, -1)"
-                    >↑</button>
-                    <button
-                      class="btn icon-action"
-                      type="button"
-                      [disabled]="index === itinerary().length - 1 || isSavingItinerary()"
-                      [attr.aria-label]="'Move ' + itineraryItemName(item) + ' down'"
-                      (click)="moveItineraryItem(item, 1)"
-                    >↓</button>
-                    <button
-                      class="btn text-action delete-action"
-                      type="button"
-                      [attr.aria-label]="'Remove ' + itineraryItemName(item) + ' from itinerary'"
-                      [disabled]="isSavingItinerary()"
-                      (click)="deleteItineraryItem(item)"
-                    >Remove</button>
-                  </div>
-                </article>
-              }
+              <div class="itinerary-form border-top mt-3 pt-3">
+                <label class="form-label" for="itinerary-type">Add to itinerary</label>
+                <select
+                  id="itinerary-type"
+                  class="form-select mb-2"
+                  [value]="itineraryItemType()"
+                  (change)="setItineraryItemType($any($event.target).value)"
+                >
+                  <option value="destination">Destination</option>
+                  <option value="activity">Activity</option>
+                </select>
+
+                <label class="form-label" for="itinerary-destination">Destination</label>
+                <select
+                  id="itinerary-destination"
+                  class="form-select mb-2"
+                  [value]="selectedDestinationId() ?? ''"
+                  (change)="selectDestination($event)"
+                >
+                  <option value="">Select a destination</option>
+                  @for (destination of destinations(); track destination.id) {
+                    <option [value]="destination.id">{{ destination.name }} · {{ destination.region }}</option>
+                  }
+                </select>
+
+                @if (itineraryItemType() === 'activity' && selectedDestinationId() !== null) {
+                  @if (isLoadingActivities()) {
+                    <p class="text-muted" role="status">Loading activities...</p>
+                  } @else if (availableActivities().length === 0) {
+                    <p class="text-muted">No activities are available for this destination yet.</p>
+                  } @else {
+                    <label class="form-label" for="itinerary-activity">Activity</label>
+                    <select
+                      id="itinerary-activity"
+                      class="form-select mb-2"
+                      [value]="selectedActivityId() ?? ''"
+                      (change)="selectActivity($event)"
+                    >
+                      <option value="">Select an activity</option>
+                      @for (activity of availableActivities(); track activity.id) {
+                        <option [value]="activity.id">{{ activity.name }}</option>
+                      }
+                    </select>
+                  }
+                }
+
+                @if (itineraryOperationFailed()) {
+                  <p class="text-danger" role="alert">The itinerary item could not be saved.</p>
+                }
+                <button
+                  class="btn save-trip-button"
+                  type="button"
+                  [disabled]="isAddingItineraryItem() || (itineraryItemType() === 'destination' && selectedDestinationId() === null) || (itineraryItemType() === 'activity' && selectedActivityId() === null)"
+                  (click)="addItineraryItem()"
+                >
+                  {{ isAddingItineraryItem() ? 'Adding...' : 'Add item' }}
+                </button>
+              </div>
             }
           </div>
         </div>
       </section>
 
-      <section class="col-12 col-lg-5" aria-labelledby="expenses-title">
-        <div class="detail-card">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Keep track of spending</p>
-              <h2 id="expenses-title">Expenses</h2>
+      <section class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline gap-2 mb-3">
+              <h2 class="h5 mb-0">Expenses</h2>
+              <span class="text-muted small">{{ expenses().length }} {{ expenses().length === 1 ? 'expense' : 'expenses' }}</span>
             </div>
-            @if (!expensesLoading() && !expensesError()) {
-              <span class="expense-total">{{ totalExpenses() | currency:'USD':'symbol':'1.2-2' }}</span>
-            }
-          </div>
 
-          @if (expenseOperationError()) {
-            <p class="inline-error" role="alert">{{ expenseOperationError() }}</p>
-          }
-
-          <form class="entry-form" [formGroup]="expenseForm" (ngSubmit)="saveExpense()">
-            <h3>{{ editingExpenseId() === null ? 'Add an expense' : 'Edit expense' }}</h3>
-            <label class="form-label" for="expense-description">Description</label>
-            <input
-              id="expense-description"
-              class="form-control"
-              [class.is-invalid]="expenseForm.controls.description.touched && expenseForm.controls.description.invalid"
-              formControlName="description"
-              maxlength="200"
-              required
-            />
-            @if (expenseForm.controls.description.touched && expenseForm.controls.description.hasError('required')) {
-              <p class="field-error" role="alert">Enter an expense description.</p>
+            @if (isLoadingExpenses()) {
+              <p class="text-muted" role="status">Loading expenses...</p>
+            } @else if (expenseLoadFailed()) {
+              <p class="text-danger" role="alert">Expenses could not be loaded.</p>
             }
 
-            <div class="row g-3 mt-1">
-              <div class="col-12 col-sm-6">
-                <label class="form-label" for="expense-amount">Amount (USD)</label>
-                <input
-                  id="expense-amount"
-                  class="form-control"
-                  [class.is-invalid]="expenseForm.controls.amount.touched && expenseForm.controls.amount.invalid"
-                  formControlName="amount"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  required
-                />
-                @if (expenseForm.controls.amount.touched && expenseForm.controls.amount.invalid) {
-                  <p class="field-error" role="alert">Enter an amount greater than zero.</p>
+            @if (expenseOperationFailed()) {
+              <p class="text-danger" role="alert">The expense could not be saved. Check the API and database.</p>
+            }
+
+            <form class="expense-form border-bottom pb-3 mb-3" [formGroup]="expenseForm" (ngSubmit)="saveExpense()">
+              <label class="form-label" for="expense-description">Description</label>
+              <input id="expense-description" class="form-control mb-2" formControlName="description" maxlength="200" />
+              @if (expenseForm.controls.description.touched && expenseForm.controls.description.invalid) {
+                <p class="text-danger small mb-2">Enter an expense description.</p>
+              }
+
+              <div class="row g-2">
+                <div class="col-12 col-sm-6">
+                  <label class="form-label" for="expense-amount">Amount</label>
+                  <input id="expense-amount" class="form-control" type="number" min="0.01" step="0.01" formControlName="amount" />
+                  @if (expenseForm.controls.amount.touched && expenseForm.controls.amount.invalid) {
+                    <p class="text-danger small mb-0">Amount must be greater than zero.</p>
+                  }
+                </div>
+                <div class="col-12 col-sm-6">
+                  <label class="form-label" for="expense-date">Date</label>
+                  <input id="expense-date" class="form-control" type="date" formControlName="expenseDate" />
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <button class="btn save-trip-button" type="submit" [disabled]="isSavingExpense()">
+                  {{ isSavingExpense() ? 'Saving...' : editingExpenseId() === null ? 'Add expense' : 'Save expense' }}
+                </button>
+                @if (editingExpenseId() !== null) {
+                  <button class="btn cancel-button" type="button" (click)="resetExpenseForm()">Cancel</button>
                 }
               </div>
-              <div class="col-12 col-sm-6">
-                <label class="form-label" for="expense-date">Date</label>
-                <input id="expense-date" class="form-control" formControlName="expenseDate" type="date" />
-              </div>
-            </div>
+            </form>
 
-            <div class="form-actions">
-              <button class="btn primary-action" type="submit" [disabled]="isSavingExpense()">
-                {{ isSavingExpense() ? 'Saving...' : editingExpenseId() === null ? 'Add expense' : 'Save changes' }}
-              </button>
-              @if (editingExpenseId() !== null) {
-                <button class="btn secondary-action" type="button" (click)="resetExpenseForm()">Cancel</button>
-              }
-            </div>
-          </form>
-
-          <div class="entry-list" aria-live="polite">
-            @if (expensesLoading()) {
-              <p class="state-message" role="status">Loading expenses...</p>
-            } @else if (expensesError()) {
-              <div class="inline-error" role="alert">
-                <span>{{ expensesError() }}</span>
-                <button class="btn text-action" type="button" (click)="retryExpenses()">Retry</button>
-              </div>
-            } @else if (expenses().length === 0) {
-              <p class="empty-message">No expenses yet. Add your first trip expense above.</p>
-            } @else {
-              @for (expense of expenses(); track expense.id) {
-                <article class="expense-item">
-                  <div class="item-copy">
-                    <h3>{{ expense.description }}</h3>
-                    <p>{{ expense.expenseDate }}</p>
-                  </div>
-                  <div class="expense-actions">
-                    <strong>{{ expense.amount | currency:'USD':'symbol':'1.2-2' }}</strong>
-                    <button
-                      class="btn text-action"
-                      type="button"
-                      [disabled]="isSavingExpense()"
-                      (click)="editExpense(expense)"
-                    >Edit</button>
-                    <button
-                      class="btn text-action delete-action"
-                      type="button"
-                      [disabled]="isSavingExpense()"
-                      (click)="deleteExpense(expense)"
-                    >Delete</button>
-                  </div>
-                </article>
-              }
+            @if (isLoadingExpenses()) {
+              <p class="text-muted mb-0" role="status">Loading expenses...</p>
+            } @else if (expenses().length === 0 && !expenseLoadFailed()) {
+              <p class="text-muted mb-0">No expenses yet.</p>
+            } @else if (expenses().length > 0) {
+              <ul class="list-group list-group-flush">
+                @for (expense of expenses(); track expense.id) {
+                  <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                      <span>{{ expense.description }} · {{ expense.amount.toFixed(2) }}</span>
+                      <span class="d-flex gap-1">
+                        <button class="btn btn-sm text-action" type="button" (click)="editExpense(expense)">Edit</button>
+                        <button class="btn btn-sm text-action delete-action" type="button" (click)="deleteExpense(expense)">Delete</button>
+                      </span>
+                    </div>
+                    <small class="text-muted">{{ expense.expenseDate }}</small>
+                  </li>
+                }
+              </ul>
             }
           </div>
         </div>

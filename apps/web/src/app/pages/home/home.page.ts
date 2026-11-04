@@ -1,8 +1,10 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Destination, DestinationService } from '../../destination.service';
 
 @Component({
   selector: 'app-home-page',
+  imports: [RouterLink],
   templateUrl: './home.page.html',
 })
 export class HomePage implements OnInit {

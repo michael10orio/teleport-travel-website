@@ -1,0 +1,53 @@
+<main class="container-xxl py-5">
+  <header class="mb-4">
+    <p class="eyebrow">Your plans at a glance</p>
+    <h1 class="mt-2">Trip dashboard</h1>
+    <p class="text-muted">Review the trips you have started planning.</p>
+  </header>
+
+  <section class="row g-3 mb-4" aria-label="Trip summary">
+    <div class="col-12 col-sm-6 col-lg-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <p class="eyebrow">Trips</p>
+          <p class="display-6 mb-0">{{ tripCount() }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="dashboard-trips-title">
+    <div class="d-flex justify-content-between align-items-baseline gap-3 mb-3">
+      <h2 id="dashboard-trips-title" class="h4 mb-0">Your trips</h2>
+      <a class="header-link" routerLink="/trips">Manage trips</a>
+    </div>
+
+    @if (isLoading()) {
+      <p class="empty-state" role="status">Loading trip information...</p>
+    } @else if (loadFailed()) {
+      <div class="empty-state" role="alert">
+        <p>Trip information could not be loaded. Check the API and database.</p>
+        <button class="btn cancel-button" type="button" (click)="loadTrips()">Retry</button>
+      </div>
+    } @else if (trips().length === 0) {
+      <p class="empty-state" role="status">No trips yet. Create a trip to see it here.</p>
+    } @else {
+      <div class="row g-3">
+        @for (trip of trips(); track trip.id) {
+          <div class="col-12 col-md-6 col-xl-4">
+            <article class="card h-100">
+              <div class="card-body">
+                <h3 class="h5">{{ trip.name }}</h3>
+                <p class="text-muted">
+                  {{ trip.startDate || 'Dates not set' }}
+                  @if (trip.endDate) { <span> to {{ trip.endDate }}</span> }
+                </p>
+                <a class="header-link" [routerLink]="['/trips', trip.id]">Open trip</a>
+              </div>
+            </article>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</main>

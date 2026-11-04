@@ -87,10 +87,21 @@
 							</div>
 							<div class="destination-details">
 								<div class="destination-title-row">
-									<h3>{{ destination.name }}</h3>
+									<h3>
+										<a class="destination-card-link" [routerLink]="['/destinations', destination.id]">
+											{{ destination.name }}
+										</a>
+									</h3>
 									<span class="destination-region">{{ destination.region }}</span>
 								</div>
 								<p>{{ destination.description }}</p>
+								<a
+									class="destination-more-link"
+									[routerLink]="['/destinations', destination.id]"
+									[attr.aria-label]="'Explore ' + destination.name"
+								>
+									Explore destination <span aria-hidden="true">→</span>
+								</a>
 							</div>
 						</article>
 					</div>
@@ -109,11 +120,11 @@
 		<div class="container-xxl planning-note-content">
 			<span class="planning-note-mark" aria-hidden="true">01</span>
 			<div>
-				<p class="eyebrow">The first step</p>
-				<h2>Discover a place, then shape your trip.</h2>
+				<p class="eyebrow">Make it yours</p>
+				<h2>Turn a place into a plan.</h2>
 			</div>
 			<p class="planning-note-copy">
-				Create a trip, add destinations and activities to its itinerary, and keep track of expenses.
+				Create trips, organize itineraries, and track expenses as you get ready to go.
 			</p>
 		</div>
 	</section>
