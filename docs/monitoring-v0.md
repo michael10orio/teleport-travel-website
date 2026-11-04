@@ -8,12 +8,12 @@
 - `GET /api/health/database` calls EF Core's `CanConnectAsync` for PostgreSQL. It returns HTTP 200 with `{"status":"ok"}` when connected and HTTP 503 with `{"status":"unavailable"}` when PostgreSQL cannot be reached. It does not expose connection details or exception messages.
 - Local Release verification on 2026-11-04 returned HTTP 200 from both `/api/health` and `/api/health/database` against PostgreSQL.
 - `scripts/smoke-test-api.sh` checks both endpoints before exercising database-backed routes.
-- GitHub Actions run `41897036664` passed API liveness, database readiness, web checks, and the CRUD smoke test after building the Compose services.
+- GitHub Actions run `41903518461` passed frontend/API builds, Compose build/start, API/database/web readiness, the scheduled ETL, transformed-data artifact upload, CRUD smoke tests, and cleanup.
 
 ## Logs and Run History
 
 - Local container logs are available through `docker compose logs api`, `docker compose logs postgres`, or `docker compose logs --follow` while the stack is running.
-- GitHub Actions stores build, readiness, smoke-test, and failure-log output in each workflow run. The workflow cleans up its temporary Compose volume after the job.
+- GitHub Actions stores build, readiness, ETL, artifact, smoke-test, and failure-log output in each workflow run. The ETL CSV artifact is retained for 7 days; the workflow cleans up its temporary Compose volume after the job.
 - .NET's built-in logging writes startup and exception logs to standard output/error for container collection.
 
 ## Limitations

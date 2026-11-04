@@ -200,3 +200,21 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **What was actually used:** `docs/security-and-secrets-v0.md` documents .NET User Secrets, ignored local `.env`, placeholder-only `.env.example`, per-run CI password generation, least-privilege GitHub workflow permissions, and Azure CLI login/RBAC use by the upload helper.
 - **Verification:** `dotnet user-secrets list` confirmed the `ConnectionStrings:TeleportDatabase` key without exposing its value. `.env` is ignored and absent. A high-confidence scan found no AWS access-key, GitHub-token, or private-key patterns in the current workspace.
 - **Limitations:** The API has no authentication/authorization, no Azure Key Vault or AWS secret manager is deployed, no cloud application is running, and the token-pattern scan is not a full historical Git-secret audit. The current build is for local PoC use only.
+
+## 2026-11-04 - Final Project CI and Monitoring Verification
+
+- **Task:** Add a hosted build/integration workflow and a local PostgreSQL readiness check.
+- **Prompt/authorization:** The user asked to complete the final-project requirements one at a time.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** `.github/workflows/ci.yml` builds Angular and .NET, builds and starts Docker Compose with a per-run random database password, checks API liveness/database readiness/web HTTP responses, runs the API CRUD smoke test, prints Compose logs on failure, and removes the ephemeral stack. `GET /api/health/database` checks EF Core's database connectivity without returning exception details.
+- **Verification:** Workflow run `41897036664` passed all steps, including Compose build, readiness, smoke test, and cleanup. Local Release API checks returned HTTP 200 for liveness and database readiness.
+- **Limitations:** Monitoring evidence is GitHub Actions history, Docker logs, and health endpoints only. No Azure Monitor, Application Insights, Log Analytics, AWS CloudWatch, persistent metrics, or alerting is configured because cloud resources are not deployed.
+
+## 2026-11-04 - Scheduled ETL Automation Verification
+
+- **Task:** Automate the Week 6 raw-data transform/load as part of the final-project cloud automation evidence.
+- **Prompt/authorization:** The user asked to complete the final-project requirements, including at least one automated workflow with input, processing, result, execution history, and failure handling.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** GitHub Actions run `41903518461` triggered from the pushed workflow. It builds the app and API, starts a temporary Compose stack with a runner-only random password, creates an isolated `teleport_etl_demo` database, runs `scripts/run_destination_etl.sh`, uploads `data/cleaned/` as a 7-day artifact, runs the API CRUD smoke test, and tears down the containers/volume.
+- **Verification:** The run completed successfully; build, service readiness, ETL, artifact upload, smoke test, and cleanup steps passed. The manual local ETL verification remains in `docs/data-pipeline-v0.md`.
+- **Limitations:** The workflow is GitHub-hosted automation, not Azure Data Factory or another deployed cloud data service. No Azure/AWS storage or database resource is configured; Azure subscription access remains blocked by `SubscriptionNotFound`.

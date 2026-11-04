@@ -53,7 +53,7 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 | --- | --- | --- |
 | Pipeline design | Complete locally | `data-pipeline-v0.md` documents raw CSV → Python validation/normalization → cleaned CSV → PostgreSQL staging/quality checks → destination/activity tables. |
 | Source and destination connections | Verified locally | Source is `data/raw/destination-research.csv`; destination was the isolated local `teleport_etl_demo` PostgreSQL database. Credentials are not stored in the repo. |
-| Successful pipeline run | Verified locally on 2026-10-25 and rechecked on 2026-11-02 | Seven source records transformed to 2 destinations and 5 activities. The latest run used temporary output files, matched the reviewed cleaned CSV records, and loaded to `teleport_etl_demo` without modifying their formatting. |
+| Successful pipeline run | Verified locally and automated in GitHub Actions | Seven source records transformed to 2 destinations and 5 activities. Local reruns used temporary output files to preserve reviewed CSV formatting. CI run `41903518461` executes the ETL against an isolated database and uploads a 7-day CSV artifact. |
 | Transform/data-quality evidence | Verified locally | Blank required fields, duplicate keys, orphan activities, and invalid rows counted zero; the repeated load inserted zero additional rows. See `data-pipeline-v0.md`. |
 | Trello update, architecture screenshot, and run screenshots | Pending manual evidence | The owner manages the Trello board and personally captures/submits screenshots. The evidence map in `data-pipeline-v0.md` lists the real artifacts to capture; no screenshot is fabricated. |
 
@@ -71,19 +71,37 @@ The original project brief requires **Podman + AWS PostgreSQL**. The supplied re
 
 | Requirement | Status | Evidence / remaining action |
 | --- | --- | --- |
-| Updated analytical architecture | Drafted | `docs/analytics-architecture-v0.md` separates current operational PostgreSQL from a proposed analytical flow. |
+| Updated analytical architecture | Documented | `docs/analytics-architecture-v0.md` shows the implemented OLTP and GitHub Actions ETL/artifact path, with the separate dimensional warehouse clearly marked proposed. |
 | OLTP vs. OLAP comparison | Documented | The architecture note explains the distinction using Teleport examples. |
 | Fact/dimension-style design | Proposed | Minimal `FactExpense`, `DimTrip`, and `DimDate` grain is described; no warehouse tables are implemented. |
 | Analytical proof of concept | Local reporting proof of concept implemented and verified | Two reporting views and two functions are defined in `database/schema/003_reporting.sql`; `database/analysis/week-8-reporting-demo.sql` returns the current destination/activity results. No separate warehouse is deployed, and trip/expense analysis remains empty because no such records exist. |
-| Trello, architecture screenshot, and commits | Pending evidence/commit | Use the actual diagram/document, update the real board, and commit/push verified changes. |
+| Trello, architecture screenshot, and commits | Code/docs committed; screenshot and board update pending | Week 8 architecture/reporting artifacts are in commit `7efac12`; screenshot and Trello actions remain owner-managed. |
+
+## Final Project Requirement Review
+
+| Requirement | Status | Evidence / remaining action |
+| --- | --- | --- |
+| CI/CD | Implemented and passed | `.github/workflows/ci.yml`; successful run `41903518461` covers build, Compose, readiness, ETL, artifact, smoke test, and cleanup. |
+| Security and secrets | Partially implemented | `docs/security-and-secrets-v0.md`; User Secrets, ignored `.env`, ephemeral CI password, and CLI/RBAC upload helper. API authentication, cloud secret manager, and deployed cloud permissions remain absent. |
+| Monitoring | Local/CI monitoring implemented; cloud monitoring absent | `docs/monitoring-v0.md`; API and DB health checks, Compose logs, and GitHub Actions run history. No Azure Monitor/App Insights/Log Analytics or CloudWatch. |
+| End-to-end validation | Verified locally and in CI | Angular web, .NET API, PostgreSQL, CRUD smoke test, and automated ETL run. No cloud-hosted app/data path. |
+| Final architecture | Documented for implemented components | `docs/analytics-architecture-v0.md`; local operational flow and actual CI/ETL artifact path are shown. AWS/Azure and the warehouse remain unimplemented. |
+| GitHub repository | Milestone history pushed; final review pending | Week 6–8, CI, and monitoring commits are on `origin/main`. Other working-tree changes remain uncommitted and need review. No high-confidence secret patterns were found in the current workspace scan; this is not a full historical secret audit. |
+| Trello and evidence | Owner action pending | Owner maintains the board and screenshots; manual Omnivox submission is still required. |
+| Final README/report | Updated; team roster needs confirmation | `README.md` covers objective, technologies, setup, results, and limitations; add any other team members before submitting. |
+| AI Prompt Log | Documented | `docs/prompt-log.md` records assistance and validation for ETL, analysis, architecture, security, and CI work. |
+| Data mining/business analysis | Completed for the small sample | Week 7 query/results files include joins, filters, aggregates, quality checks, interpretation, and sample-size/spending limitations. |
+| Automated workflow | Implemented and passed | Scheduled/push/PR/manual GitHub Actions workflow runs raw CSV → transform → isolated PostgreSQL → 7-day artifact; run `41903518461`. |
+| Database/cloud infrastructure | Local database/container stack verified; cloud resources blocked | Local schema, demo data, Compose, Podman runtime, and API connection are verified. AWS is not provisioned; Azure management returns `SubscriptionNotFound` because the supplied ID was the directory ID, not the subscription ID. |
 
 ## Cross-week evidence limitations
 
 - Local PostgreSQL 18.3 is reachable. `teleport_dev` currently contains two demonstration destinations, five activities, and zero trips, itinerary items, or expenses after smoke-test cleanup. The separate `teleport_etl_demo` database contains the ETL destination/activity output.
-- `GET /api/health` checks API-host liveness only; database-backed destination requests and the successful CRUD smoke test separately verify API-to-database communication.
+- `GET /api/health` checks API-host liveness; `GET /api/health/database` separately verifies PostgreSQL readiness. Both returned HTTP 200 locally. GitHub Actions run `41903518461` passed frontend/API builds, fresh Compose build, readiness checks, automated ETL/artifact upload, CRUD smoke tests, and cleanup.
 - Screenshots are saved locally in `docs/`, but their existence is not an Omnivox submission; the project owner must upload them.
 - Azure upload and AWS resource provisioning are not done; both require account access and any applicable cost approval.
 - Local credential handling was reviewed in `docs/security-and-secrets-v0.md`: `.env` is ignored, the API development connection string is in .NET User Secrets, and CI generates an ephemeral database password. The API has no authentication and no cloud secret manager is deployed; do not expose this PoC publicly.
+- Monitoring is limited to API/database health endpoints, Docker/CI logs, and GitHub Actions run history; no cloud monitoring service, persistent metrics, or alerting is deployed. See `docs/monitoring-v0.md`.
 - Podman 5.5.2 and its local amd64 runtime are verified with `hello-world`; the Teleport stack itself has not been run under Podman. Docker Desktop availability has been intermittent; while available, the Compose stack runs and passes verification. A fresh Compose build remains blocked by a Docker engine HTTP 500 during image pull.
 - GitHub remote `origin` exists, but current uncommitted edits must be reviewed, committed, and pushed before claiming they are on GitHub.
 - Screenshot files saved locally still need the project owner's review and manual Omnivox submission.
