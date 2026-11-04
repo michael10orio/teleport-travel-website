@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '17 12 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -56,6 +58,11 @@ jobs:
             --retry-delay 2 --retry-max-time 90 \
             http://127.0.0.1:5079/api/health
           curl --fail --silent --show-error --output /dev/null \
+            --write-out 'API database readiness HTTP %{http_code}\n' \
+            --connect-timeout 5 --max-time 10 --retry 30 --retry-all-errors \
+            --retry-delay 2 --retry-max-time 90 \
+            http://127.0.0.1:5079/api/health/database
+          curl --fail --silent --show-error --output /dev/null \
             --write-out 'API destinations HTTP %{http_code}\n' \
             --connect-timeout 5 --max-time 10 --retry 30 --retry-all-errors \
             --retry-delay 2 --retry-max-time 90 \
@@ -65,6 +72,30 @@ jobs:
             --connect-timeout 5 --max-time 10 --retry 30 --retry-all-errors \
             --retry-delay 2 --retry-max-time 90 \
             http://127.0.0.1:4200/
+
+      - name: Install PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes postgresql-client
+          fi
+
+      - name: Run scheduled destination ETL
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "55432"
+          PGDATABASE: teleport_etl_demo
+          PGUSER: teleport_app
+        run: |
+          PGPASSWORD="$POSTGRES_PASSWORD" createdb --host="$PGHOST" --port="$PGPORT" --username="$PGUSER" "$PGDATABASE"
+          PGPASSWORD="$POSTGRES_PASSWORD" bash scripts/run_destination_etl.sh
+
+      - name: Upload transformed data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: teleport-week6-etl-output
+          path: data/cleaned/
+          retention-days: 7
 
       - name: Run API and database smoke tests
         run: bash scripts/smoke-test-api.sh
