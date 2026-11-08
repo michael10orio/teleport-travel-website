@@ -13,13 +13,13 @@ Teleport is a proof of concept for destination discovery and basic trip planning
 5. **Analysis:** Show the Week 7 SQL and Week 8 reporting demo. Lisbon has three activities and Porto two in this small sample. There are no trip or expense rows, so expense totals/averages are `NULL`; do not present them as measured zero spending.
 6. **Automation and CI/CD:** Show GitHub Actions run [41935325901](https://github.com/michael10orio/teleport-travel-website/actions/runs/41935325901), which passed app/API builds, Docker Compose startup, API/database/web readiness, ETL, a 7-day cleaned-data artifact, CRUD smoke tests, and cleanup for commit `8ec063b`.
 7. **Security and monitoring:** Explain .NET User Secrets, ignored `.env`, the ephemeral CI database password, local liveness/database-readiness endpoints, and container/GitHub logs. State that API authentication, a cloud secret manager, and cloud monitoring are not deployed.
-8. **Limitations and recommendation:** This is a local POC, not a production or cloud-hosted service. AWS reports the free plan ended and the account is closed, with content deletion scheduled after December 30, 2026; Azure management calls return `SubscriptionNotFound`. No cloud database, storage, or monitoring is deployed. The small dataset supports activity-coverage counts, not traveler preferences or spending conclusions.
+8. **Limitations and recommendation:** This is a local POC, not a production or cloud-hosted service. AWS reports the free plan ended and the account is closed; Azure management calls return `SubscriptionNotFound`. AWS RDS, cloud storage, and monitoring are unmet requirements. The owner chose not to open a replacement account or upgrade to paid AWS for this small POC without instructor approval. The small dataset supports activity-coverage counts, not traveler preferences or spending conclusions.
 9. **Contributions:** The repository owner is Michael James Tenorio. Add other contributors and individual contributions only if applicable.
 
 ## Practical Lessons
 
 - The first ETL load into an empty database failed because the schema had not been applied. Adding schema setup to the runner fixed that and made repeat loads idempotent.
-- Azure sign-in succeeded, but the ID initially used was a directory ID rather than a subscription ID. Checking subscription access earlier would have avoided planning around unavailable cloud resources. The AWS free plan later ended and the account closed; check restoration costs before deciding whether to upgrade.
+- Azure sign-in succeeded, but the ID initially used was a directory ID rather than a subscription ID. Checking subscription access earlier would have avoided planning around unavailable cloud resources. The AWS free plan ended and the account closed; creating a replacement or upgrading is not justified for this small POC without instructor direction and cost approval.
 - The first Podman Compose run spent several minutes pulling and building images. The stack worked after that; leave time for first-run downloads.
 - Two destinations and five activities are enough to test joins and counts, not to make a useful travel recommendation.
 

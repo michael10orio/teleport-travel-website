@@ -257,4 +257,4 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **Task:** Correct the cloud blocker status after the owner shared the AWS sign-in notice.
 - **AI tool used:** GitHub Copilot.
 - **What was updated:** Current documentation now says AWS reports the free plan ended, the account is closed, and content may be deleted after December 30, 2026. The project has no known AWS resources.
-- **Next step:** Contact AWS Support or decide whether to upgrade after checking potential charges. Do not create another account to bypass the closure; ask the instructor about an acceptable cloud alternative.
+- **Decision:** The owner considers a new AWS account or paid upgrade not worthwhile for this small POC unless the instructor confirms AWS RDS is required and approves the cost. The cloud database requirement remains unmet; seek an instructor-approved alternative rather than bypassing the account closure.
