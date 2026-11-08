@@ -25,4 +25,4 @@ Teleport is a proof of concept for destination discovery and basic trip planning
 
 **Reflection draft to personalize:** I would verify cloud access before committing to a provider, and I would gather more reviewed data before making business recommendations. The local stack and small ETL sample were the most useful parts for proving the application and pipeline mechanics.
 
-The 30 screenshots are organized in `docs/evidence/`. Review them and upload the assignment-required evidence to Omnivox; files in the repository are not a submission.
+The 30 screenshots are organized in `docs/evidence/`. The project owner reports uploading the weekly evidence sets, including Trello captures, to Omnivox; the live board remains owner-managed.

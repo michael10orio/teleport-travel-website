@@ -132,7 +132,7 @@ Use `docker compose` instead if Docker Desktop is running. The app is at `http:/
 - The GitHub Actions workflow builds the app/API, starts Docker Compose with an ephemeral password, checks readiness, runs the ETL in an isolated database, uploads a 7-day artifact, runs CRUD smoke tests, and cleans up. Run [41935325901](https://github.com/michael10orio/teleport-travel-website/actions/runs/41935325901) passed for implementation/evidence commit `8ec063b`; see the [CI workflow](https://github.com/michael10orio/teleport-travel-website/actions/workflows/ci.yml) for newer documentation-only runs.
 - The local Podman Compose deployment has been built and tested. Web, API liveness, database readiness, and destinations returned HTTP 200; the API CRUD smoke test passed and removed its temporary records.
 - The final presentation/demo sequence is outlined in [docs/final-demo-v0.md](docs/final-demo-v0.md).
-- Sprint and Week 6–8 screenshots are grouped and indexed in [docs/evidence/README.md](docs/evidence/README.md); they still need manual Omnivox upload.
+- Sprint and Week 6–8 screenshots, including weekly Trello captures, are grouped in [docs/evidence/README.md](docs/evidence/README.md); the project owner reports uploading the required evidence to Omnivox.
 - The AWS account is suspended. Azure sign-in works, but Azure management returns `SubscriptionNotFound`; no cloud database, storage, or monitoring has been deployed. Confirm an acceptable alternative with the instructor.
 - The API has no authentication/authorization and is not production-ready. See [docs/security-and-secrets-v0.md](docs/security-and-secrets-v0.md) and [docs/monitoring-v0.md](docs/monitoring-v0.md) for security and monitoring scope.
 

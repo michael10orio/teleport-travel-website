@@ -237,3 +237,17 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **Changes made:** Replaced stale future-work copy, fixed trip details remaining in a loading state after success, and resolved itinerary foreign keys to readable destination/activity names.
 - **Verification:** GitHub Actions run `41935325901` passed for commit `8ec063b`, including app builds, Compose readiness, ETL artifact, CRUD smoke tests, and cleanup. The implementation and evidence are pushed to `main`.
 - **Limitations:** The Angular build reports existing bundle/style budget warnings; no dedicated frontend unit-test files were found. The first Podman Compose build required several minutes of image downloads. AWS is suspended and Azure has no accessible subscription. Trello updates and Omnivox submission remain owner actions.
+
+## 2026-11-07 - Omnivox Evidence Status
+
+- **Task:** Update project status after the owner confirmed the remaining screenshot evidence was submitted.
+- **AI tool used:** GitHub Copilot.
+- **What was updated:** Current documentation now records that the weekly screenshot sets, including Trello captures, were uploaded to Omnivox per the project owner's report.
+- **Limitation:** The live Trello board itself was not accessed or independently verified; cloud deployment remains blocked as previously documented.
+
+## 2026-11-07 - Omnivox Screenshot Submission Update
+
+- **Task:** Update current project status after the owner completed the remaining screenshot upload.
+- **Prompt/authorization:** The project owner reported that the remaining Omnivox screenshot updates were completed.
+- **AI tool used:** GitHub Copilot.
+- **What was updated:** README, course tracker, evidence index, and demo guide now mark the required screenshot submission complete per the owner's report. Trello and cloud-resource statuses were not changed.
