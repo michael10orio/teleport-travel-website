@@ -33,8 +33,9 @@ This PoC does not include flight booking, hotel booking, payment processing, rea
 - .NET Minimal API
 - PostgreSQL
 - Podman Compose (local deployment); Docker Compose (GitHub Actions CI)
+- Supabase PostgreSQL free project (schema, sample data, reporting objects provisioned; API connection pending)
 - GitHub Actions (build, integration checks, scheduled ETL, and short-lived ETL artifact)
-- AWS PostgreSQL and Azure Blob Storage/ADLS (planned, not provisioned)
+- AWS RDS and Azure Blob/ADLS remain unprovisioned. Supabase is a candidate alternative, pending instructor approval.
 
 The original project brief requires Podman and AWS PostgreSQL. The regular-project course brief adds Docker and Azure storage preparation. These are additive for this project; the separate AWS-to-Azure migration track does not apply.
 
@@ -45,6 +46,8 @@ The implemented local application architecture is:
 ```text
 Traveler -> Angular/Nx + Bootstrap -> .NET Minimal API -> PostgreSQL (teleport_dev)
 ```
+
+A Supabase Free PostgreSQL project was separately initialized with the same schema, demo seed, views, and functions. The .NET API has not yet been pointed at or tested against that hosted database; the running app still uses the local database.
 
 The automated data flow is:
 
@@ -131,9 +134,10 @@ Use `docker compose` instead if Docker Desktop is running. The app is at `http:/
 - The business interpretation is limited to curated activity coverage (Lisbon 3, Porto 2); this tiny sample does not establish popularity, quality, cost, or traveler preference.
 - The GitHub Actions workflow builds the app/API, starts Docker Compose with an ephemeral password, checks readiness, runs the ETL in an isolated database, uploads a 7-day artifact, runs CRUD smoke tests, and cleans up. Run [41935325901](https://github.com/michael10orio/teleport-travel-website/actions/runs/41935325901) passed for implementation/evidence commit `8ec063b`; see the [CI workflow](https://github.com/michael10orio/teleport-travel-website/actions/workflows/ci.yml) for newer documentation-only runs.
 - The local Podman Compose deployment has been built and tested. Web, API liveness, database readiness, and destinations returned HTTP 200; the API CRUD smoke test passed and removed its temporary records.
+- Supabase PostgreSQL has the schema and reporting objects, with 2 destinations and 5 activities seeded. This proves remote database provisioning only; API-to-Supabase CRUD is still unverified.
 - The final presentation/demo sequence is outlined in [docs/final-demo-v0.md](docs/final-demo-v0.md).
 - Sprint and Week 6–8 screenshots, including weekly Trello captures, are grouped in [docs/evidence/README.md](docs/evidence/README.md); the project owner reports uploading the required evidence to Omnivox.
-- The AWS console reports the free plan ended and the account is closed, with content deletion scheduled after December 30, 2026. No project AWS resources are deployed. We will not open a replacement account or upgrade to paid AWS for this small POC unless the instructor confirms it is required and approves the cost; the AWS RDS requirement remains unmet pending an accepted alternative. Azure sign-in works, but management returns `SubscriptionNotFound`.
+- The AWS console reports the free plan ended and the account is closed, with content deletion scheduled after December 30, 2026. No project AWS resources are deployed. We will not open a replacement account or upgrade to paid AWS for this small POC unless the instructor confirms it is required and approves the cost; the AWS RDS requirement remains unmet pending an accepted alternative. Azure sign-in works, but management returns `SubscriptionNotFound` and no Azure storage is deployed. Supabase substitution also needs instructor approval.
 - The API has no authentication/authorization and is not production-ready. See [docs/security-and-secrets-v0.md](docs/security-and-secrets-v0.md) and [docs/monitoring-v0.md](docs/monitoring-v0.md) for security and monitoring scope.
 
 The project is intentionally a small PoC. Data and results are described only where they have been locally verified; proposed cloud and warehouse layers are labeled as plans.

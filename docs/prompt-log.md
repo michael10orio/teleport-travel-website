@@ -258,3 +258,13 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **AI tool used:** GitHub Copilot.
 - **What was updated:** Current documentation now says AWS reports the free plan ended, the account is closed, and content may be deleted after December 30, 2026. The project has no known AWS resources.
 - **Decision:** The owner considers a new AWS account or paid upgrade not worthwhile for this small POC unless the instructor confirms AWS RDS is required and approves the cost. The cloud database requirement remains unmet; seek an instructor-approved alternative rather than bypassing the account closure.
+
+## 2026-11-07 - Supabase PostgreSQL Alternative
+
+- **Task:** Provision the project's existing schema and demo data in the owner's Supabase Free PostgreSQL project as a possible cloud alternative.
+- **Prompt/authorization:** The owner chose Supabase as a candidate alternative and completed the account/project setup.
+- **AI tool used:** GitHub Copilot.
+- **What was actually used:** The owner connected with `psql` through Supabase's IPv4 session pooler over TLS and ran the repository's schema, seed, and reporting SQL files. The Supabase Data API was disabled so the intended app path remains Angular → .NET API → PostgreSQL.
+- **Verification:** Five tables were created; seed inserts reported 2 destinations and 5 activities; two views and two functions were created. Counts were 2 destinations, 5 activities, 0 trips, 0 itinerary items, and 0 expenses.
+- **Struggle and next step:** The first SQL Editor attempt had a trailing syntax character, and the first pasted `\\i` command was accidentally joined to the next query. Running each `\\i` command separately succeeded. The .NET API has not yet been configured or tested against Supabase.
+- **Limitation:** The Supabase project is an alternative candidate, not confirmed as satisfying the rubric's AWS RDS requirement. The owner should obtain instructor approval before claiming equivalence; the AWS account remains closed.

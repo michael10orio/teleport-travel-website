@@ -12,6 +12,10 @@ flowchart LR
 
 The existing PostgreSQL database is the operational system of record. The app and API use normalized tables for destinations, activities, trips, itinerary items, and expenses.
 
+## Supabase Database Prototype
+
+A Supabase Free PostgreSQL project has been provisioned and initialized with the same five-table schema, the 2-destination/5-activity seed, and the reporting views/functions. The Supabase Data API is disabled. The running Angular/.NET app still uses local `teleport_dev`; API-to-Supabase connection and CRUD have not yet been tested. Supabase is a candidate substitute for the AWS database requirement only if the instructor approves it.
+
 ## Implemented Automated CI and ETL Flow
 
 GitHub Actions runs on pushes, pull requests, a weekly schedule, or manual dispatch. The workflow builds both application projects, starts an ephemeral Docker Compose stack, checks service readiness, runs the ETL against an isolated database, publishes the cleaned CSV output as a 7-day artifact, runs the CRUD smoke test, and removes the temporary stack.
