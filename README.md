@@ -33,7 +33,7 @@ This PoC does not include flight booking, hotel booking, payment processing, rea
 - .NET Minimal API
 - PostgreSQL
 - Podman Compose (local deployment); Docker Compose (GitHub Actions CI)
-- Supabase PostgreSQL free project (schema, sample data, reporting objects provisioned; API connection pending)
+- Supabase PostgreSQL Free project (schema, sample data, reporting objects, and API connection verified)
 - GitHub Actions (build, integration checks, scheduled ETL, and short-lived ETL artifact)
 - AWS RDS and Azure Blob/ADLS remain unprovisioned. Supabase is a candidate alternative, pending instructor approval.
 
@@ -47,7 +47,7 @@ The implemented local application architecture is:
 Traveler -> Angular/Nx + Bootstrap -> .NET Minimal API -> PostgreSQL (teleport_dev)
 ```
 
-A Supabase Free PostgreSQL project was separately initialized with the same schema, demo seed, views, and functions. The .NET API has not yet been pointed at or tested against that hosted database; the running app still uses the local database.
+A Supabase Free PostgreSQL project has the same schema, demo seed, views, and functions. The host-run .NET API connects to it through .NET User Secrets; readiness and CRUD smoke tests passed. Podman Compose continues to use its local PostgreSQL service, and the Supabase Data API is disabled so the browser uses only the .NET API.
 
 The automated data flow is:
 
@@ -134,10 +134,10 @@ Use `docker compose` instead if Docker Desktop is running. The app is at `http:/
 - The business interpretation is limited to curated activity coverage (Lisbon 3, Porto 2); this tiny sample does not establish popularity, quality, cost, or traveler preference.
 - The GitHub Actions workflow builds the app/API, starts Docker Compose with an ephemeral password, checks readiness, runs the ETL in an isolated database, uploads a 7-day artifact, runs CRUD smoke tests, and cleans up. Run [41935325901](https://github.com/michael10orio/teleport-travel-website/actions/runs/41935325901) passed for implementation/evidence commit `8ec063b`; see the [CI workflow](https://github.com/michael10orio/teleport-travel-website/actions/workflows/ci.yml) for newer documentation-only runs.
 - The local Podman Compose deployment has been built and tested. Web, API liveness, database readiness, and destinations returned HTTP 200; the API CRUD smoke test passed and removed its temporary records.
-- Supabase PostgreSQL has the schema and reporting objects, with 2 destinations and 5 activities seeded. This proves remote database provisioning only; API-to-Supabase CRUD is still unverified.
+- The host-run .NET API connected to Supabase PostgreSQL. Readiness, destination reads, and CRUD smoke tests passed; the tests removed their temporary records, leaving 2 destinations, 5 activities, and no trip-related rows.
 - The final presentation/demo sequence is outlined in [docs/final-demo-v0.md](docs/final-demo-v0.md).
 - Sprint and Week 6–8 screenshots, including weekly Trello captures, are grouped in [docs/evidence/README.md](docs/evidence/README.md); the project owner reports uploading the required evidence to Omnivox.
-- The AWS console reports the free plan ended and the account is closed, with content deletion scheduled after December 30, 2026. No project AWS resources are deployed. We will not open a replacement account or upgrade to paid AWS for this small POC unless the instructor confirms it is required and approves the cost; the AWS RDS requirement remains unmet pending an accepted alternative. Azure sign-in works, but management returns `SubscriptionNotFound` and no Azure storage is deployed. Supabase substitution also needs instructor approval.
+- The AWS console reports the free plan ended and the account is closed, with content deletion scheduled after December 30, 2026. No project AWS resources are deployed. Supabase is a working candidate alternative, but the AWS RDS requirement remains unmet until the instructor approves the substitution. We will not open a replacement AWS account or upgrade to paid AWS without approval. Azure management returns `SubscriptionNotFound` and no Azure storage is deployed.
 - The API has no authentication/authorization and is not production-ready. See [docs/security-and-secrets-v0.md](docs/security-and-secrets-v0.md) and [docs/monitoring-v0.md](docs/monitoring-v0.md) for security and monitoring scope.
 
 The project is intentionally a small PoC. Data and results are described only where they have been locally verified; proposed cloud and warehouse layers are labeled as plans.

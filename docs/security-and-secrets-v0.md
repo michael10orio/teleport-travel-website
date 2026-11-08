@@ -10,7 +10,7 @@
 - **Azure upload preparation:** `scripts/upload-data-to-azure.sh` uses Azure CLI login (`--auth-mode login`), does not accept or store an account key/SAS token, and checks for an active login before making cloud changes. A working subscription/storage account has not been available, so no Azure upload or role assignment has occurred. The intended minimum data-plane role is `Storage Blob Data Contributor` on the approved storage scope.
 - **API keys:** The current application does not call third-party services and has no API-key configuration.
 - **AWS:** No AWS resource or credential is configured in the project. The AWS sign-in notice says the free plan ended, the account is closed, and content may be deleted after December 30, 2026. Restoring/upgrading the account may incur charges.
-- **Supabase:** A Free PostgreSQL project is provisioned and seeded. The Supabase Data API is disabled; the intended access path is the server-side .NET API. The API connection has not yet been configured. Keep the Supabase database password in .NET User Secrets or a local ignored environment file; never commit it.
+- **Supabase:** A Free PostgreSQL project is provisioned and seeded. The Supabase Data API is disabled; the .NET API connects server-side through the session pooler using .NET User Secrets. The connection and CRUD smoke test were verified. Never commit the Supabase database password. The Free plan may pause inactive projects and is not a production availability guarantee.
 
 ## Access and Exposure
 
