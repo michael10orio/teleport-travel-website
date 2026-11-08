@@ -133,7 +133,7 @@ Use `docker compose` instead if Docker Desktop is running. The app is at `http:/
 - The local Podman Compose deployment has been built and tested. Web, API liveness, database readiness, and destinations returned HTTP 200; the API CRUD smoke test passed and removed its temporary records.
 - The final presentation/demo sequence is outlined in [docs/final-demo-v0.md](docs/final-demo-v0.md).
 - Sprint and Week 6–8 screenshots, including weekly Trello captures, are grouped in [docs/evidence/README.md](docs/evidence/README.md); the project owner reports uploading the required evidence to Omnivox.
-- The AWS account is suspended. Azure sign-in works, but Azure management returns `SubscriptionNotFound`; no cloud database, storage, or monitoring has been deployed. Confirm an acceptable alternative with the instructor.
+- The AWS console reports the free plan ended and the account is closed, with content deletion scheduled after December 30, 2026. No project AWS database or CloudWatch resources are deployed. Azure sign-in works, but management returns `SubscriptionNotFound`. Ask the instructor about an alternative; upgrading AWS may incur charges.
 - The API has no authentication/authorization and is not production-ready. See [docs/security-and-secrets-v0.md](docs/security-and-secrets-v0.md) and [docs/monitoring-v0.md](docs/monitoring-v0.md) for security and monitoring scope.
 
 The project is intentionally a small PoC. Data and results are described only where they have been locally verified; proposed cloud and warehouse layers are labeled as plans.

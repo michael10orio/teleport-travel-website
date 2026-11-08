@@ -251,3 +251,10 @@ This log records actual AI-assisted development work for the Teleport PoC.
 - **Prompt/authorization:** The project owner reported that the remaining Omnivox screenshot updates were completed.
 - **AI tool used:** GitHub Copilot.
 - **What was updated:** README, course tracker, evidence index, and demo guide now mark the required screenshot submission complete per the owner's report. Trello and cloud-resource statuses were not changed.
+
+## 2026-11-07 - AWS Free-Plan Closure Notice
+
+- **Task:** Correct the cloud blocker status after the owner shared the AWS sign-in notice.
+- **AI tool used:** GitHub Copilot.
+- **What was updated:** Current documentation now says AWS reports the free plan ended, the account is closed, and content may be deleted after December 30, 2026. The project has no known AWS resources.
+- **Next step:** Contact AWS Support or decide whether to upgrade after checking potential charges. Do not create another account to bypass the closure; ask the instructor about an acceptable cloud alternative.

@@ -18,5 +18,5 @@
 
 ## Limitations
 
-- Azure Monitor, Application Insights, Log Analytics, AWS CloudWatch, persistent metrics, and alerting are not configured. The AWS account is suspended; Azure management returns `SubscriptionNotFound`. No external monitor or cloud resource is deployed.
+- Azure Monitor, Application Insights, Log Analytics, AWS CloudWatch, persistent metrics, and alerting are not configured. AWS reports the free plan ended and the account is closed, with content deletion scheduled after December 30, 2026; Azure management returns `SubscriptionNotFound`. No project cloud resources are deployed. Upgrading AWS may incur charges.
 - The health endpoints are unauthenticated and intended for this local PoC. Do not expose them or the API publicly without adding appropriate access controls and production monitoring.

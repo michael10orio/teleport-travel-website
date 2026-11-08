@@ -9,7 +9,7 @@
 - **GitHub Actions:** CI generates a random database password for the ephemeral test stack and exposes it only to later steps through the runner environment. The workflow has `contents: read` permission and removes the test containers and volume afterward. No deployment credential is configured.
 - **Azure upload preparation:** `scripts/upload-data-to-azure.sh` uses Azure CLI login (`--auth-mode login`), does not accept or store an account key/SAS token, and checks for an active login before making cloud changes. A working subscription/storage account has not been available, so no Azure upload or role assignment has occurred. The intended minimum data-plane role is `Storage Blob Data Contributor` on the approved storage scope.
 - **API keys:** The current application does not call third-party services and has no API-key configuration.
-- **AWS:** No AWS resource or credential is configured in the project. The user reports the AWS account is suspended.
+- **AWS:** No AWS resource or credential is configured in the project. The AWS sign-in notice says the free plan ended, the account is closed, and content may be deleted after December 30, 2026. Restoring/upgrading the account may incur charges.
 
 ## Access and Exposure
 
