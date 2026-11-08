@@ -86,6 +86,14 @@ Store the local API connection string in .NET User Secrets, replacing the placeh
 dotnet user-secrets set "ConnectionStrings:TeleportDatabase" "<local PostgreSQL connection string>" --project apps/api/Teleport.Api.csproj
 ```
 
+To use the Supabase Free database instead, copy its **Session pooler** host and username from the Supabase Connect dialog and store that connection string in the same User Secret. Keep the Supabase Data API disabled; Angular should call only the .NET API.
+
+```sh
+dotnet user-secrets set "ConnectionStrings:TeleportDatabase" "Host=<SESSION_POOLER_HOST>;Port=5432;Database=postgres;Username=<SESSION_POOLER_USER>;Password=<DATABASE_PASSWORD>;SSL Mode=Require;" --project apps/api/Teleport.Api.csproj
+```
+
+This Supabase connection is verified with readiness checks and the API CRUD smoke test. Podman Compose continues to use its local PostgreSQL service; CI uses disposable PostgreSQL.
+
 Run the API and frontend in separate terminals:
 
 ```sh
@@ -130,7 +138,7 @@ Use `docker compose` instead if Docker Desktop is running. The app is at `http:/
 ## Results and Limitations
 
 - Reviewed demonstration data: 2 destinations and 5 activities. The ETL transform validates 7 raw rows and is idempotent.
-- Current operational database: 0 trips, 0 itinerary items, and 0 expenses. Therefore no real spending analysis is possible; expense `SUM`/`AVG` are `NULL`, not measured zero spending.
+- After smoke-test cleanup, local `teleport_dev` and the Supabase demo project each contain 2 destinations, 5 activities, and 0 trips, itinerary items, or expenses. Therefore no real spending analysis is possible; expense `SUM`/`AVG` are `NULL`, not measured zero spending.
 - The business interpretation is limited to curated activity coverage (Lisbon 3, Porto 2); this tiny sample does not establish popularity, quality, cost, or traveler preference.
 - The GitHub Actions workflow builds the app/API, starts Docker Compose with an ephemeral password, checks readiness, runs the ETL in an isolated database, uploads a 7-day artifact, runs CRUD smoke tests, and cleans up. Run [41935325901](https://github.com/michael10orio/teleport-travel-website/actions/runs/41935325901) passed for implementation/evidence commit `8ec063b`; see the [CI workflow](https://github.com/michael10orio/teleport-travel-website/actions/workflows/ci.yml) for newer documentation-only runs.
 - The local Podman Compose deployment has been built and tested. Web, API liveness, database readiness, and destinations returned HTTP 200; the API CRUD smoke test passed and removed its temporary records.

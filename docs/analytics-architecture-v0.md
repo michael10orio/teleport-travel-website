@@ -14,7 +14,7 @@ The existing PostgreSQL database is the operational system of record. The app an
 
 ## Supabase Database Prototype
 
-A Supabase Free PostgreSQL project has been provisioned and initialized with the same five-table schema, the 2-destination/5-activity seed, and the reporting views/functions. The host-run .NET API connects to Supabase using .NET User Secrets; readiness and CRUD smoke tests passed. The Supabase Data API is disabled, so the browser still communicates only with the .NET API. Podman Compose continues to use its local PostgreSQL service. Supabase is a candidate substitute for the AWS database requirement only if the instructor approves it.
+A Supabase Free PostgreSQL project has been provisioned and initialized with the same five-table schema, the 2-destination/5-activity seed, and the reporting views/functions. The host-run .NET API connects to Supabase using .NET User Secrets; readiness, API CRUD, and browser workflows passed. The Supabase Data API is disabled, so the browser still communicates only with the .NET API. Podman Compose continues to use its local PostgreSQL service, and CI uses disposable PostgreSQL. Supabase is a candidate substitute for the AWS database requirement only if the instructor approves it.
 
 ## Implemented Automated CI and ETL Flow
 
